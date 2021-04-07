@@ -27,11 +27,13 @@ func GenerateJWT(user model.User) (string, error) {
 	atClaims["authorized"] = true
 	atClaims["email"] = user.Email
 	atClaims["id"] = user.ID
-	atClaims["exp"] = time.Now().Add(time.Minute * 72000).Unix
+	atClaims["exp"] = time.Now().Add(time.Minute * 7200).Unix()
+	fmt.Println("atClaims", atClaims)
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	token, err := at.SignedString([]byte(SECRET_KEY))
 	if err != nil {
+		fmt.Println("GenerateJWT", err)
 		return "", err
 	}
 	return token, nil

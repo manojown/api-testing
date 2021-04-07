@@ -74,6 +74,7 @@ func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Requ
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err := Collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
 	if err != nil {
+		log.Println("error while login----", err)
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{"message":"` + err.Error() + `"}`))
 		return
@@ -89,6 +90,8 @@ func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Requ
 	}
 	jwtToken, err := helper.GenerateJWT(dbUser)
 	if err != nil {
+		log.Println("in jwt----", err)
+
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{"message":"` + err.Error() + `"}`))
 		return

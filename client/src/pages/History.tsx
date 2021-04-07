@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 
 import axios from 'axios';
 // let URL = 'http://35.154.34.85:1880/history'
-const URL = process.env.REACT_APP_API ? process.env.REACT_APP_API : 'http://localhost:8080';
 
 function History(props) {
   const params = useParams();
