@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -51,7 +52,7 @@ func (this *MyConn) Write(b []byte) (n int, err error) {
 	return len, err
 }
 
-func printResult(results map[int]*Result, sentResponse chan<- model.TestResponse) {
+func printResult(results map[int]*Result, sentResponse chan<- model.TestResponse, URL string) {
 
 	var testResult model.TestResponse
 
@@ -62,6 +63,9 @@ func printResult(results map[int]*Result, sentResponse chan<- model.TestResponse
 		testResult.NetworkFailed += result.networkFailed
 
 	}
+	testResult.URL = URL
+	testResult.RequestURL = URL
+	testResult.Responder, _ = os.Hostname()
 	testResult.ReadThroughput = readThroughput / (kb * 8)
 	testResult.WriteThroughput = writeThroughput / (kb * 8)
 
@@ -78,12 +82,11 @@ func Initialize(conf *model.Configuration, sentResponse chan<- model.TestRespons
 	var done sync.WaitGroup
 	results := make(map[int]*Result)
 	timout := make(chan bool, 1)
-	// log.Println("conf.Time :::::", conf.Time)
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
 	go func() {
 		_ = <-sig
-		printResult(results, sentResponse)
+		printResult(results, sentResponse, conf.URL)
 
 	}()
 
@@ -111,7 +114,7 @@ func Initialize(conf *model.Configuration, sentResponse chan<- model.TestRespons
 		go client(result, conf, &done)
 	}
 	done.Wait()
-	printResult(results, sentResponse)
+	printResult(results, sentResponse, conf.URL)
 
 }
 
@@ -150,7 +153,8 @@ func doRequest(url string, result *Result, conf *model.Configuration) {
 		req.Header.Set("Connection", "close")
 	}
 
-	req.SetBody([]byte(conf.PostData))
+	d, _ := json.Marshal(conf.PostData)
+	req.SetBody(d)
 	resp := fasthttp.AcquireResponse()
 	err := myClient.Do(req, resp)
 	statusCode := resp.StatusCode()

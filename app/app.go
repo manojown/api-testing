@@ -6,14 +6,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	rice "github.com/GeertJohan/go.rice"
+	helper "github.com/manojown/api-testing-premium/app/helper"
+
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/manojown/api-testing-premium/app/handler"
 	"github.com/manojown/api-testing-premium/config"
-	"github.com/manojown/api-testing-premium/handler"
-
-	"github.com/rs/cors"
 )
 
 var PORT string = ":8080"
@@ -38,7 +37,9 @@ func (app *App) run() {
 	go func() {
 
 		// app.Router.PathPrefix("/").Handler(http.FileServer(rice.MustFindBox("../client/build").HTTPBox()))
-		handler := cors.Default().Handler(app.Router)
+		header := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+		methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
+		origins := handlers.AllowedOrigins([]string{"*"})
 
 		envPort := os.Getenv("PORT")
 		if envPort != "" {
@@ -46,7 +47,7 @@ func (app *App) run() {
 		}
 		fmt.Printf("Running on %s", PORT)
 
-		err := http.ListenAndServe(PORT, handler)
+		err := http.ListenAndServe(PORT, handlers.CORS(header, methods, origins)(app.Router))
 		if err != nil {
 			panic("Something Went wrong" + err.Error())
 		}
@@ -57,29 +58,61 @@ func (app *App) run() {
 }
 
 func (app *App) setRouter() {
-	app.apiHandler("/testing", "POST", handler.Registeration)
+	app.apiHandler("/registration", "POST", handler.Registeration, false)
+	app.apiHandler("/login", "POST", handler.Login, false)
+	app.apiHandler("/test", "GET", handler.Test, true)
+	app.apiHandler("/request", "POST", handler.NewSessionRequest, true)
+	app.apiHandler("/request/{id}", "GET", handler.UserRequest, true)
+	app.apiHandler("/request", "GET", handler.UserRequest, true)
+	app.apiHandler("/performance/{id}", "GET", handler.GetPerformance, true)
+	app.apiHandler("/performance", "GET", handler.GetPerformance, true)
+	app.apiHandler("/server", "POST", handler.CreateServer, true)
+	app.apiHandler("/server/{id}", "GET", handler.GetServer, true)
+	app.apiHandler("/server", "GET", handler.GetServer, true)
+	app.apiHandler("/user", "GET", handler.GetAllUser, true)
+	app.apiHandler("/connector", "POST", handler.Connector, false)
+
 }
 
-func (app *App) apiHandler(path string, method string, handler handlerFunction) {
-	app.Router.HandleFunc(path, app.funcHandler(handler)).Methods(method)
+func (app *App) apiHandler(path string, method string, handler handlerFunction, isAuth bool) {
+	if isAuth {
+		app.Router.HandleFunc(path, app.withAuthHandler(handler)).Methods(method)
+	} else {
+		app.Router.HandleFunc(path, app.withoutAuthHandler(handler)).Methods(method)
+	}
 }
 
 type handlerFunction func(db *config.DbConfig, w http.ResponseWriter, r *http.Request)
 
-func (app *App) funcHandler(handler handlerFunction) http.HandlerFunc {
+func (app *App) withoutAuthHandler(handler handlerFunction) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		handler(app.DB, rw, r)
 	}
 }
 
-func serveAppHandler(app *rice.Box) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		indexFile, err := app.Open("index.html")
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+func (app *App) withAuthHandler(handler handlerFunction) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
 
-		http.ServeContent(w, r, "index.html", time.Time{}, indexFile)
+		auth, user := helper.AutheticateRequest(r)
+		app.DB.User = user
+
+		if auth {
+			handler(app.DB, rw, r)
+		} else {
+			rw.WriteHeader(http.StatusUnauthorized)
+			rw.Write([]byte("Unauthorized"))
+		}
 	}
 }
+
+// func serveAppHandler(app *rice.Box) http.HandlerFunc {
+
+// 		indexFile, err := app.Open("index.html")
+// 		if err != nil {
+// 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+// 			return
+// 		}
+
+// 		http.ServeContent(w, r, "index.html", time.Time{}, indexFile)
+// 	}
+// }

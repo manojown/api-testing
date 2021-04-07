@@ -1,38 +1,65 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Configuration struct {
-	Uid       int64               `json:"uid"`
-	URL       string              `json:"url"`
-	Requests  int64               `json:"requests"`
-	Time      int                 `json:"time"`
-	Clients   int                 `json:"clients"`
-	Headers   []map[string]string `json:"headers"`
-	KeepAlive bool                `json:"keepAlive"`
-	Method    string              `json:"method"`
-	Ips       []string            `json:"ips"`
-	PostData  string              `json:"postData"`
-	Created   string              `json:"created"`
+	ID        primitive.ObjectID  `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID    primitive.ObjectID  `bson:"userID,omitempty" json:"userID,omitempty"`
+	URL       string              `json:"url" bson:"url,omitempty"`
+	Requests  int64               `json:"requests" bson:"requests"`
+	Time      int                 `json:"time" bson:"time"`
+	Clients   int                 `json:"clients" bson:"clients"`
+	Headers   []map[string]string `json:"headers" bson:"headers"`
+	KeepAlive bool                `json:"keepAlive" bson:"keepAlive"`
+	Method    string              `json:"method" bson:"method"`
+	Ips       []string            `json:"ips" bson:"ips"`
+	PostData  interface{}         `json:"postData" bson:"postData"`
+	Created   int64               `json:"created" bson:"created"`
 }
 
 type Server struct {
-	Uid      int    `json:"uid"`
-	Topic    string `json:"topic"`
-	ServerIP string `json:"serverIP"`
-	Created  int64  `json:"created"`
+	UserID        primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
+	Name          string             `json:"name" bson:"name"`
+	Token         string             `json:"token" bson:"token"`
+	ServerIP      string             `json:"serverIP" bson:"serverIP"`
+	Port          string             `json:"port" bson:"port"`
+	Created       int64              `json:"created" bson:"created"`
+	DiskSpace     DiskSpace          `json:"diskSpace" bson:"diskSpace"`
+	RAM           MemStatus          `json:"ram" bson:"ram"`
+	LastConnected int64              `json:"lastConnected" bson:"lastConnected"`
+	CPU           CPUStatus          `json:"cpu" bson:"cpu"`
 }
 
 type PayloadReciever struct {
-	UID          int64        `json:"uid"`
-	Responder    string       `json:"responder"`
-	TestResponse TestResponse `json:"testResponse"`
+	UserID       primitive.ObjectID `json:"userID"`
+	RequestID    primitive.ObjectID `json:"requestID"`
+	IP           string             `json:"ip"`
+	TestResponse TestResponse       `json:"testResponse"`
 }
 
 type PayloadResponder struct {
-	UID  int64         `json:"uid"`
-	Ip   string        `json:"ip"`
-	Conf Configuration `json:"conf"`
+	UserID    primitive.ObjectID `json:"userID"`
+	RequestID primitive.ObjectID `json:"requestID"`
+	IP        string             `json:"ip"`
+	Conf      Configuration      `json:"conf"`
 }
 type ConnectionData struct {
-	Topic    string `json:"topic"`
-	ServerIP string `json:"serverIP"`
+	Topic    string `json:"topic" bson:"usage"`
+	ServerIP string `json:"serverIP" bson:"serverIP"`
+}
+
+type DiskSpace struct {
+	All  uint64 `json:"all" bson:"all"`
+	Used uint64 `json:"used" bson:"used"`
+	Free uint64 `json:"free" bson:"free"`
+}
+
+type CPUStatus struct {
+	Cores int     `json:"cores" bson:"cores"`
+	Usage float64 `json:"usage" bson:"usage"`
+}
+type MemStatus struct {
+	All  uint64 `json:"all" bson:"all"`
+	Used uint64 `json:"used" bson:"used"`
+	Free uint64 `json:"free" bson:"free"`
 }

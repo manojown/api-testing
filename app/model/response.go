@@ -1,18 +1,36 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type TestResponse struct {
-	Uid             int64  `json:"uid"`
-	Url             string `json:"url"`
-	Responder       string `json:"responder"`
-	RequestUrl      string `json:"requestUrl"`
-	ConfigId        int64  `json:"configId"`
-	TotalTimeTaken  int64  `json:"totalTime"`
-	TotalRequests   int64  `json:"totalRequests"`
-	SucessRequests  int64  `json:"sucessRequests"`
-	FailedRequests  int64  `json:"failedRequest"`
-	NetworkFailed   int64  `json:"networkFailed"`
-	WriteThroughput int64  `json:"writeThroughput"`
-	ReadThroughput  int64  `json:"readThroughput"`
-	PerSecond       int64  `json:"perSecond"`
-	Created         string `json:"created"`
+	UserID          primitive.ObjectID `json:"userID" bson:"userID"`
+	RequestID       primitive.ObjectID `json:"requestID" bson:"requestID"`
+	URL             string             `json:"url" bson:"url"`
+	Responder       string             `json:"responder" bson:"responder"`
+	RequestURL      string             `json:"requestUrl" bson:"requestUrl"`
+	TotalTimeTaken  int64              `json:"totalTime" bson:"totalTime"`
+	TotalRequests   int64              `json:"totalRequests" bson:"totalRequests"`
+	SucessRequests  int64              `json:"sucessRequests" bson:"sucessRequests"`
+	FailedRequests  int64              `json:"failedRequest" bson:"failedRequest"`
+	NetworkFailed   int64              `json:"networkFailed" bson:"networkFailed"`
+	WriteThroughput int64              `json:"writeThroughput" bson:"writeThroughput"`
+	ReadThroughput  int64              `json:"readThroughput" bson:"readThroughput"`
+	PerSecond       int64              `json:"perSecond" bson:"perSecond"`
+	Created         int64              `json:"created" bson:"created"`
+}
+
+type Response struct {
+	Status  int         `json:"status,omitempty"`
+	Message string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+func NewResponse(status int, Message string, data interface{}) *Response {
+
+	return &Response{
+		Status:  status,
+		Message: Message,
+		Data:    data,
+	}
+
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/manojown/api-testing-premium/app/model"
 	_ "github.com/mattn/go-sqlite3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,6 +13,7 @@ import (
 
 type DbConfig struct {
 	Client *mongo.Client
+	User   model.User
 }
 
 func (db *DbConfig) initialize() {
@@ -19,7 +21,7 @@ func (db *DbConfig) initialize() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://manoj:manoj@cluster0.6jvp2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+		"mongodb+srv://manojown:manoj337@cluster0.6jvp2.mongodb.net/test?retryWrites=true&w=majority",
 	))
 	if err != nil {
 		log.Fatal(err)
@@ -29,7 +31,7 @@ func (db *DbConfig) initialize() {
 
 func (db *DbConfig) Collection(collectionName string) *mongo.Collection {
 
-	return db.Client.Database("testing").Collection(collectionName)
+	return db.Client.Database("test").Collection(collectionName)
 
 }
 
