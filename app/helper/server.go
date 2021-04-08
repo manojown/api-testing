@@ -9,6 +9,7 @@ import (
 	"github.com/manojown/api-testing-premium/app/model"
 	"github.com/manojown/api-testing-premium/config"
 	"github.com/valyala/fasthttp"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -85,16 +86,32 @@ func apiCall(url string, method string, data []byte) {
 
 }
 
-func ProcessRequest(ips []string, payload model.PayloadResponder) {
+func ProcessRequest(DB *config.DbConfig, payload model.PayloadResponder) (error, bool) {
+	var allIps []model.Server
+	Collection := DB.Collection("server")
+	cursor, _ := Collection.Find(nil, bson.M{
+		"userID": DB.User.ID,
+	})
 
-	for ip := range ips {
-		payload.IP = ips[ip]
-		log.Println("Ips is", ips[ip])
-		addr := fmt.Sprintf("http://%s:3004/test", ips[ip])
+	defer cursor.Close(nil)
+
+	for cursor.Next(nil) {
+		var server model.Server
+		if err := cursor.Decode(&server); err != nil {
+			return err, false
+		}
+		allIps = append(allIps, server)
+	}
+	for ip := range allIps {
+		payload.Responder = allIps[ip].ServerIP
+		log.Println("Ips is", payload.Responder)
+		addr := fmt.Sprintf("http://%s:%s/test", payload.Responder, allIps[ip].Port)
 		dataToSent, err := json.Marshal(payload)
 		if err != nil {
 			log.Println("error while marshal json.")
+			return err, false
 		}
 		apiCall(addr, "POST", dataToSent)
 	}
+	return nil, true
 }

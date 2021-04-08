@@ -60,7 +60,7 @@ func (app *App) run() {
 func (app *App) setRouter() {
 	app.apiHandler("/registration", "POST", handler.Registeration, false)
 	app.apiHandler("/login", "POST", handler.Login, false)
-	app.apiHandler("/test", "GET", handler.Test, true)
+	app.apiHandler("/test", "GET", handler.Test, false)
 	app.apiHandler("/request", "POST", handler.NewSessionRequest, true)
 	app.apiHandler("/request/{id}", "GET", handler.UserRequest, true)
 	app.apiHandler("/request", "GET", handler.UserRequest, true)
@@ -71,6 +71,7 @@ func (app *App) setRouter() {
 	app.apiHandler("/server", "GET", handler.GetServer, true)
 	app.apiHandler("/user", "GET", handler.GetAllUser, true)
 	app.apiHandler("/connector", "POST", handler.Connector, false)
+	app.apiHandler("/result", "POST", handler.GetServerRespone, false)
 
 }
 

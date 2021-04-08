@@ -88,7 +88,6 @@ func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request
 // NewSessionRequest is ...
 func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var response model.TestResponse
-
 	var conf model.Configuration
 	var paylodResponse model.PayloadResponder
 
@@ -102,10 +101,19 @@ func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Requ
 	requestID := helpers.CreateNewRequest(DB, conf)
 	paylodResponse.Conf = conf
 	paylodResponse.RequestID = requestID
+	paylodResponse.UserID = DB.User.ID
+
+	go func() {
+		err, _ := helpers.ProcessRequest(DB, paylodResponse)
+		if err != nil {
+			log.Println("err")
+		}
+		log.Println("All Request SuccessFully sent to all saved server.")
+
+	}()
 
 	go func() {
 
-		// go helpers.ProcessRequest(conf.Ips, paylodResponse)
 		processStartTime := time.Now()
 		services.Initialize(&conf, responseReciever)
 		response = <-responseReciever
@@ -194,12 +202,14 @@ func GetServerRespone(DB *config.DbConfig, rw http.ResponseWriter, r *http.Reque
 
 	err := json.NewDecoder(r.Body).Decode(&payloadReciever)
 	checkErr(err)
-
+	log.Println("REcive from remote servver:GetServerRespone", payloadReciever)
 	response = payloadReciever.TestResponse
-	response.RequestID = payloadReciever.UserID
-	response.Responder = payloadReciever.IP
+	response.RequestURL = response.URL
+	response.UserID = payloadReciever.UserID
+	response.RequestID = payloadReciever.RequestID
+	response.Responder = payloadReciever.Responder
 	insertionID := helpers.InsertTestResult(DB, response)
-	log.Printf("Data save to db DbConnect where id is:%d and responder is %s ", insertionID, response.Responder)
+	log.Println("Data save to db DbConnect where id is:%d and responder is %s ", insertionID, response.Responder)
 
 }
 
@@ -227,8 +237,8 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 		},
 	}
 	log.Println("update", server.Token, server.ServerIP)
-	isUpdate, _ := Collection.UpdateOne(nil, bson.M{"token": server.Token}, update)
-	log.Println("server update via connector", isUpdate)
+	_, _ = Collection.UpdateOne(nil, bson.M{"token": server.Token}, update)
+	// log.Println("server update via connector", isUpdate)
 
 }
 

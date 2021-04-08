@@ -33,14 +33,14 @@ type Server struct {
 type PayloadReciever struct {
 	UserID       primitive.ObjectID `json:"userID"`
 	RequestID    primitive.ObjectID `json:"requestID"`
-	IP           string             `json:"ip"`
+	Responder    string             `json:"responder"`
 	TestResponse TestResponse       `json:"testResponse"`
 }
 
 type PayloadResponder struct {
 	UserID    primitive.ObjectID `json:"userID"`
 	RequestID primitive.ObjectID `json:"requestID"`
-	IP        string             `json:"ip"`
+	Responder string             `json:"responder"`
 	Conf      Configuration      `json:"conf"`
 }
 type ConnectionData struct {
