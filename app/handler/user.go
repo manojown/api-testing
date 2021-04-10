@@ -32,7 +32,7 @@ func GetAllUser(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	for cursor.Next(ctx) {
 		var user model.User
 		if err = cursor.Decode(&user); err != nil {
-			log.Println("jjjjjjjjjjjj", err.Error())
+			log.Println("Error while data parse:GetAllUser", err.Error())
 		}
 		dbUsers = append(dbUsers, user)
 	}
@@ -45,6 +45,7 @@ func Registeration(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request)
 	var dbUser model.User
 
 	json.NewDecoder(r.Body).Decode(&user)
+
 	user.Password = helper.GetHash([]byte(user.Password))
 	Collection := DB.Collection("user")
 
@@ -69,32 +70,32 @@ func Registeration(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request)
 func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Request) {
 	var user model.User
 	var dbUser model.User
-	json.NewDecoder(request.Body).Decode(&user)
+
+	err := json.NewDecoder(request.Body).Decode(&user)
 	Collection := DB.Collection("user")
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err := Collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
-	if err != nil {
-		log.Println("error while login----", err)
-		response.WriteHeader(http.StatusInternalServerError)
-		response.Write([]byte(`{"message":"` + err.Error() + `"}`))
+	err = Collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
+
+	if dbUser.Email == "" {
+		ResponseWriter(response, http.StatusInternalServerError, "You are not register with us.", err)
 		return
 	}
 
 	userPass := []byte(user.Password)
 	dbPassBuffered := []byte(dbUser.Password)
+
 	passErr := bcrypt.CompareHashAndPassword(dbPassBuffered, userPass)
+
 	if passErr != nil {
-		log.Println(passErr)
-		response.Write([]byte(`{"response":"Wrong Password!"}`))
+		ResponseWriter(response, http.StatusInternalServerError, "Email or password incorrect.", passErr)
 		return
 	}
 	jwtToken, err := helper.GenerateJWT(dbUser)
 	if err != nil {
-		log.Println("in jwt----", err)
-
-		response.WriteHeader(http.StatusInternalServerError)
-		response.Write([]byte(`{"message":"` + err.Error() + `"}`))
+		ResponseWriter(response, http.StatusInternalServerError, "Something went wrong.", err.Error())
 		return
 	}
-	response.Write([]byte(`{"token":"` + jwtToken + `"}`))
+
+	ResponseWriter(response, http.StatusOK, "User loggedIn successfully.", jwtToken)
 }

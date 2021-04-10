@@ -45,6 +45,7 @@ func (app *App) run() {
 		if envPort != "" {
 			PORT = fmt.Sprintf(":%s", envPort)
 		}
+		PORT = fmt.Sprintf(":%s", envPort)
 		fmt.Printf("Running on %s", PORT)
 
 		err := http.ListenAndServe(PORT, handlers.CORS(header, methods, origins)(app.Router))
@@ -64,7 +65,6 @@ func (app *App) setRouter() {
 	app.apiHandler("/request", "POST", handler.NewSessionRequest, true)
 	app.apiHandler("/request/{id}", "GET", handler.UserRequest, true)
 	app.apiHandler("/request", "GET", handler.UserRequest, true)
-	app.apiHandler("/performance/{id}", "GET", handler.GetPerformance, true)
 	app.apiHandler("/performance", "GET", handler.GetPerformance, true)
 	app.apiHandler("/server", "POST", handler.CreateServer, true)
 	app.apiHandler("/server/{id}", "GET", handler.GetServer, true)

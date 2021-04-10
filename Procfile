@@ -1,1 +1,1 @@
-web: api-testing
+web: api-testing-premium

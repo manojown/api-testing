@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	"github.com/manojown/api-testing-premium/app/model"
@@ -18,10 +19,12 @@ type DbConfig struct {
 
 func (db *DbConfig) initialize() {
 
+	mongoURL := os.Getenv("MONGO_URL")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://manojown:manoj337@cluster0.6jvp2.mongodb.net/test?retryWrites=true&w=majority",
+		mongoURL,
 	))
 	if err != nil {
 		log.Fatal(err)

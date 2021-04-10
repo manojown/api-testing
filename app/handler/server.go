@@ -29,6 +29,7 @@ import (
 
 func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var dbRequests []model.Configuration
+	_, options := helpers.ValidatePagination(r.URL.Query())
 
 	params := mux.Vars(r)
 	requestID, err := primitive.ObjectIDFromHex(params["id"])
@@ -40,7 +41,7 @@ func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	Collection := DB.Collection("request")
-	cursor, err := Collection.Find(ctx, criteria)
+	cursor, err := Collection.Find(ctx, criteria, &options)
 
 	defer cursor.Close(ctx)
 
@@ -57,10 +58,11 @@ func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 }
 
 func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+	_, options := helpers.ValidatePagination(r.URL.Query())
 	var dbRequests []model.TestResponse
 
-	params := mux.Vars(r)
-	requestID, err := primitive.ObjectIDFromHex(params["id"])
+	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	log.Println("called this id", r.URL.Query().Get("id"))
 	criteria := bson.M{"userID": DB.User.ID}
 
 	if requestID != primitive.NilObjectID {
@@ -69,7 +71,7 @@ func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	Collection := DB.Collection("result")
-	cursor, err := Collection.Find(ctx, criteria)
+	cursor, err := Collection.Find(ctx, criteria, &options)
 
 	defer cursor.Close(ctx)
 
@@ -169,6 +171,8 @@ func CreateServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) 
 }
 
 func GetServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+	_, options := helpers.ValidatePagination(r.URL.Query())
+
 	var dbServers []model.Server
 
 	params := mux.Vars(r)
@@ -180,7 +184,7 @@ func GetServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	Collection := DB.Collection("server")
-	cursor, err := Collection.Find(ctx, criteria)
+	cursor, err := Collection.Find(ctx, criteria, &options)
 
 	defer cursor.Close(ctx)
 
