@@ -25,6 +25,7 @@ type Server struct {
 	Port          string             `json:"port" bson:"port"`
 	Created       int64              `json:"created" bson:"created"`
 	DiskSpace     DiskSpace          `json:"diskSpace" bson:"diskSpace"`
+	ServerOS      string             `json:"serverOS" bson:"serverOS"`
 	RAM           MemStatus          `json:"ram" bson:"ram"`
 	LastConnected int64              `json:"lastConnected" bson:"lastConnected"`
 	CPU           CPUStatus          `json:"cpu" bson:"cpu"`
