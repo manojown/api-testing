@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"math"
-	"net"
 	"net/http"
 	"time"
 
@@ -225,10 +224,10 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var server model.Server
 	// var dbServer model.Server
 
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	// ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
 	if server.ServerIP == "" {
-		server.ServerIP = ip
+		// server.ServerIP = ip
 	}
 	_ = json.NewDecoder(r.Body).Decode(&server)
 
@@ -236,7 +235,6 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	// _ = Collection.FindOne(nil, bson.M{"token": server.Token}).Decode(&dbServer)
 	update := bson.M{
 		"$set": bson.M{
-			"serverIP":      server.ServerIP,
 			"port":          server.Port,
 			"diskSpace":     server.DiskSpace,
 			"ram":           server.RAM,
