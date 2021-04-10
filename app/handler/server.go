@@ -30,6 +30,7 @@ import (
 func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var dbRequests []model.Configuration
 	_, options := helpers.ValidatePagination(r.URL.Query())
+	options.SetSort(bson.D{{"_id", -1}})
 
 	params := mux.Vars(r)
 	requestID, err := primitive.ObjectIDFromHex(params["id"])
@@ -59,6 +60,8 @@ func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 
 func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	_, options := helpers.ValidatePagination(r.URL.Query())
+	options.SetSort(bson.D{{"_id", -1}})
+
 	var dbRequests []model.TestResponse
 
 	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
@@ -172,6 +175,7 @@ func CreateServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) 
 
 func GetServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	_, options := helpers.ValidatePagination(r.URL.Query())
+	options.SetSort(bson.D{{"_id", -1}})
 
 	var dbServers []model.Server
 
