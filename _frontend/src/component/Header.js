@@ -1,19 +1,25 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Link, useLocation } from "react-router-dom";
 import {  clearState   } from "../features/utilitySlice";
 import { useDispatch } from "react-redux";
+import jwt_decode from "jwt-decode";
 
 
 import AllRoutes from "../helpers/routes";
 import image from '../assets/logout.png'
 function Header() {
+  let [name,setName] = useState("")
   const location = useLocation();
   const logout = () => {
     localStorage.removeItem("token")
     window.location.reload();
   }
   let dispatch = useDispatch()
-
+  
+  useEffect(() => {
+    var decoded = jwt_decode(localStorage.getItem('token'));
+    setName(decoded.email)
+  },[])
   const clear = () => {
     console.log("clear stare call")
     dispatch(clearState())
@@ -40,7 +46,7 @@ function Header() {
             </button>
 
             <div className="ml-3 relative text-white">
-              Manoj Choudhary  
+              {name} 
             </div>
           </div>
         </div>
