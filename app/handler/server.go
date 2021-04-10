@@ -235,7 +235,6 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	// _ = Collection.FindOne(nil, bson.M{"token": server.Token}).Decode(&dbServer)
 	update := bson.M{
 		"$set": bson.M{
-			"port":          server.Port,
 			"diskSpace":     server.DiskSpace,
 			"ram":           server.RAM,
 			"cpu":           server.CPU,
