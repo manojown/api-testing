@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/api-testing/static/css/main.ed182de0.chunk.css",
+    "main.js": "/api-testing/static/js/main.10a51e05.chunk.js",
+    "main.js.map": "/api-testing/static/js/main.10a51e05.chunk.js.map",
+    "runtime-main.js": "/api-testing/static/js/runtime-main.6541a2bd.js",
+    "runtime-main.js.map": "/api-testing/static/js/runtime-main.6541a2bd.js.map",
+    "static/js/2.81d3ec53.chunk.js": "/api-testing/static/js/2.81d3ec53.chunk.js",
+    "static/js/2.81d3ec53.chunk.js.map": "/api-testing/static/js/2.81d3ec53.chunk.js.map",
+    "static/js/3.5ee3e3c5.chunk.js": "/api-testing/static/js/3.5ee3e3c5.chunk.js",
+    "static/js/3.5ee3e3c5.chunk.js.map": "/api-testing/static/js/3.5ee3e3c5.chunk.js.map",
+    "index.html": "/api-testing/index.html",
+    "static/css/main.ed182de0.chunk.css.map": "/api-testing/static/css/main.ed182de0.chunk.css.map",
+    "static/js/2.81d3ec53.chunk.js.LICENSE.txt": "/api-testing/static/js/2.81d3ec53.chunk.js.LICENSE.txt",
+    "static/media/logout.e8614c6c.png": "/api-testing/static/media/logout.e8614c6c.png"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6541a2bd.js",
+    "static/js/2.81d3ec53.chunk.js",
+    "static/css/main.ed182de0.chunk.css",
+    "static/js/main.10a51e05.chunk.js"
+  ]
+}
