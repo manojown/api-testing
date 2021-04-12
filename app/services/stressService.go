@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"reflect"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -24,6 +25,7 @@ type Result struct {
 	failed        int64
 	networkFailed int64
 	badFailed     int64
+	responseTime  int64
 }
 
 var readThroughput int64
@@ -61,18 +63,17 @@ func printResult(results map[int]*Result, sentResponse chan<- model.TestResponse
 		testResult.SucessRequests += result.success
 		testResult.FailedRequests += result.badFailed
 		testResult.NetworkFailed += result.networkFailed
+		testResult.ResponseTime += result.responseTime
 
 	}
 	testResult.URL = URL
 	testResult.RequestURL = URL
 	testResult.Responder, _ = os.Hostname()
-	testResult.ReadThroughput = readThroughput / (kb * 8)
-	testResult.WriteThroughput = writeThroughput / (kb * 8)
-
-	// fmt.Printf("total Request count :                %10d/hits\n", testResult.TotalRequests)
-	// fmt.Printf("total success Request is :           %10d/hits\n", testResult.SucessRequests)
-	// fmt.Printf("total badFailed is :                 %10d/hits\n", testResult.FailedRequests)
-	// fmt.Printf("total badFailed is :                 %10d/hits\n", testResult.NetworkFailed)
+	testResult.ReadThroughput = readThroughput
+	testResult.WriteThroughput = writeThroughput
+	if testResult.ResponseTime > 0 && testResult.SucessRequests > 0 {
+		testResult.ResponseTime = testResult.ResponseTime / testResult.SucessRequests
+	}
 
 	sentResponse <- testResult
 
@@ -101,8 +102,8 @@ func Initialize(conf *model.Configuration, sentResponse chan<- model.TestRespons
 		timout <- true
 	}()
 	conf.Requests = int64((1 << 63) - 1)
-	myClient.ReadTimeout = time.Duration(5000) * time.Millisecond
-	myClient.WriteTimeout = time.Duration(5000) * time.Millisecond
+	myClient.ReadTimeout = time.Duration(10000) * time.Millisecond
+	myClient.WriteTimeout = time.Duration(10000) * time.Millisecond
 	myClient.MaxConnsPerHost = conf.Clients
 	myClient.Dial = MyDialer()
 
@@ -133,7 +134,6 @@ func MyDialer() func(address string) (conn net.Conn, err error) {
 		if err != nil {
 			return nil, err
 		}
-
 		myConn := &MyConn{Conn: conn}
 
 		return myConn, nil
@@ -142,10 +142,9 @@ func MyDialer() func(address string) (conn net.Conn, err error) {
 func doRequest(url string, result *Result, conf *model.Configuration) {
 
 	req := fasthttp.AcquireRequest()
-
 	req.SetRequestURI(url)
 	req.Header.SetMethodBytes([]byte(conf.Method))
-
+	setHeader(conf.Headers, req)
 	if conf.KeepAlive == true {
 		req.Header.Set("Connection", "keep-alive")
 
@@ -156,7 +155,13 @@ func doRequest(url string, result *Result, conf *model.Configuration) {
 	d, _ := json.Marshal(conf.PostData)
 	req.SetBody(d)
 	resp := fasthttp.AcquireResponse()
+	processStartTime := time.Now()
+	// response.TotalTimeTaken =
+
 	err := myClient.Do(req, resp)
+	t := time.Now()
+	responseTime := t.Sub(processStartTime).Microseconds()
+	// log.Println("respon is:::", resp.Time)
 	statusCode := resp.StatusCode()
 	result.request++
 	fasthttp.ReleaseRequest(req)
@@ -167,9 +172,20 @@ func doRequest(url string, result *Result, conf *model.Configuration) {
 	}
 
 	if statusCode == fasthttp.StatusOK || statusCode == fasthttp.StatusMovedPermanently {
+		result.responseTime += responseTime
 		result.success++
+
 	} else {
 		result.badFailed++
 	}
 
+}
+
+func setHeader(data interface{}, req *fasthttp.Request) {
+	v := reflect.ValueOf(data)
+	if v.Kind() == reflect.Map {
+		for _, key := range v.MapKeys() {
+			req.Header.Add(key.Interface().(string), v.MapIndex(key).Interface().(string))
+		}
+	}
 }

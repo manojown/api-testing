@@ -3,7 +3,7 @@ import Table from "../Table";
 import { pagination as paginationUtils } from "../../helpers/utility";
 import { selectUtility, setPagination } from "../../features/utilitySlice";
 import { useDispatch, useSelector } from "react-redux";
-
+import Tooltip from  "../_Shared/tooltip"
 export default function PerformanceTable({ data, isFetching }) {
 	const dispatch = useDispatch();
 	let { pagination } = useSelector(selectUtility);
@@ -40,7 +40,8 @@ function tableData(index, data, columns) {
 		}
 		return (
 			<td className='px-6 py-4 whitespace-nowrap text-center'>
-				<div className='text-sm text-gray-500'>{typeFind(column.type, data[column.accessor])}</div>
+				
+				<div className='text-sm  flex justify-center text-gray-500'>{typeFind(column.type, data[column.accessor])}</div>
 			</td>
 		);
 	});
@@ -50,14 +51,19 @@ function typeFind(type = "no-type", value) {
 	switch (type) {
 		case "date":
 			return new Date(Number(value * 1000)).toLocaleDateString();
+		case "url":
+			return  <Tooltip tooltipText={value}>{value && value.length ? value.split("/")[2] : value} </Tooltip>
+		case "ip":
+			return value && value.length ? value.slice(0,15) : value
+		
 		default:
 			return value;
 	}
 }
 let headings = [
 	{ name: "Index" },
-	{ name: "Url", accessor: "requestUrl" },
-	{ name: "Responder", accessor: "responder" },
+	{ name: "Url", accessor: "requestUrl", type:"url"},
+	{ name: "Responder", accessor: "responder", type:"ip"},
 	{ name: "Total Time", accessor: "totalTime" },
 	{ name: "Total Requests", accessor: "totalRequests" },
 	{ name: "Sucess Requests", accessor: "sucessRequests" },

@@ -69,6 +69,11 @@ function getAllDownload(downloads, search) {
 								{arch}
 							</span>
 						</span>
+						<span className='ml-2 flex-1 w-0 truncate'>
+							<span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800'>
+							{bytesToSize(download.size)}
+							</span>
+						</span>
 					</div>
 					<div className='ml-4 flex-shrink-0'>
 						<a
@@ -85,3 +90,12 @@ function getAllDownload(downloads, search) {
 	}
 	return d;
 }
+
+
+function bytesToSize(bytes) {
+	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+	if (bytes == 0) return '0 Byte';
+	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+ }
+ 

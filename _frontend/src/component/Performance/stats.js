@@ -14,19 +14,37 @@ export default stats
 
 function calculateState(data){
     let obj = {
+		totalCounted: 0,
         failedRequest: 0,
         perSecond: 0,
         sucessRequests: 0,
-        totalRequests: 0
+		totalRequests: 0,
+		networkFailed: 0,
+		responseTime: 0,
+		readThroughput: 0,
+		writeThroughput: 0,
+		averageTime : 0
+
 
     }
 
     data && data.length && data.forEach((current) => {
+		if(current.perSecond){
+			obj.totalCounted += 1
+		}
         obj.sucessRequests += current.sucessRequests
         obj.failedRequest += current.failedRequest
         obj.totalRequests += current.totalRequests
-        obj.perSecond += current.perSecond
+		obj.perSecond += current.perSecond
+		obj.networkFailed += current.networkFailed	
+		obj.responseTime += current.responseTime
+		obj.readThroughput += current.readThroughput
+		obj.writeThroughput += current.writeThroughput
+		obj.averageTime += current.totalTime
+
+
     })
+		// console.log("current.sucessRequests",obj)
 
     return obj;
     // failedRequest: 4239
@@ -66,9 +84,37 @@ function aa(matrix){
 				</div>
 			</div>
 			<div className="p-5 bg-white rounded shadow-sm">
-				<div className="text-base text-blue-600 ">Per Seconds</div>
+				<div className="text-base text-red-600 ">Netwrok Failed</div>
+				<div className="flex justify-center items-center ">
+					<div className="text-2xl  self-center font-bold text-red-600 ">{numFormate(matrix.networkFailed)}</div>
+					
+				</div>
+			</div>
+			<div className="p-5 bg-white rounded shadow-sm">
+				<div className="text-base text-blue-600 ">Per Seconds </div>
 				<div className="flex justify-center pt-1">
-					<div className="text-2xl self-center font-bold text-blue-600 ">{numFormate(matrix.perSecond)}</div>
+					<div className="text-2xl self-center font-bold text-blue-600 ">{numFormate(matrix.perSecond/matrix.totalCounted)}</div>
+					
+				</div>
+			</div>
+			<div className="p-5 bg-white rounded shadow-sm">
+				<div className="text-base text-blue-600 ">Average Response Time</div>
+				<div className="flex justify-center pt-1">
+					<div className="text-2xl self-center font-bold text-blue-600 ">{parseInt((matrix.responseTime/matrix.totalCounted)/1000)}ms</div>
+					
+				</div>
+			</div>
+			<div className="p-5 bg-white rounded shadow-sm">
+				<div className="text-base text-blue-600 ">Read Throughput</div>
+				<div className="flex justify-center pt-1">
+					<div className="text-2xl self-center font-bold text-blue-600 ">{convertToMb(matrix.readThroughput/matrix.totalCounted)}ps</div>
+					
+				</div>
+			</div>
+			<div className="p-5 bg-white rounded shadow-sm">
+				<div className="text-base text-blue-600 ">Write Throughput</div>
+				<div className="flex justify-center pt-1">
+					<div className="text-2xl self-center font-bold text-blue-600 ">{convertToMb(matrix.writeThroughput/matrix.totalCounted)}ps</div>
 					
 				</div>
 			</div>

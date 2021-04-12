@@ -61,7 +61,7 @@ func (app *App) run() {
 func (app *App) setRouter() {
 	app.apiHandler("/registration", "POST", handler.Registeration, false)
 	app.apiHandler("/login", "POST", handler.Login, false)
-	app.apiHandler("/test", "GET", handler.Test, false)
+	app.apiHandler("/test", "GET", handler.Test, true)
 	app.apiHandler("/request", "POST", handler.NewSessionRequest, true)
 	app.apiHandler("/request/{id}", "GET", handler.UserRequest, true)
 	app.apiHandler("/request", "GET", handler.UserRequest, true)
@@ -93,7 +93,6 @@ func (app *App) withoutAuthHandler(handler handlerFunction) http.HandlerFunc {
 
 func (app *App) withAuthHandler(handler handlerFunction) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		auth, user := helper.AutheticateRequest(r)
 		app.DB.User = user
 

@@ -3,13 +3,16 @@ exports.numFormate = function numFormate(num) {
 		return (num / 1000).toFixed(2) + "K"; // convert to K for number from > 1000 < 1 million
 	} else if (num > 1000000) {
 		return (num / 1000000).toFixed(2) + "M"; // convert to M for number from > 1 million
-	} else if (num < 900) {
-		return num; // if value < 1000, nothing to do
+	} else {
+		return num; 
 	}
 };
 
-exports.convertToMb = function convertToMb(num) {
-	return (num / 1024).toFixed(1);
+exports.convertToMb = (bytes) => {
+	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+	if (bytes == 0) return '0 Byte';
+	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 };
 
 exports.pagination = (action, data) => {

@@ -5,7 +5,7 @@
     },
     {
         name: "Request",
-        path: "request"
+        path: "/request"
     },
     {
         name: "Performance",

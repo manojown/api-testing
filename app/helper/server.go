@@ -63,7 +63,7 @@ func checkErr(err error) {
 	}
 }
 func apiCall(url string, method string, data []byte) {
-
+	log.Println("Url ::", url, method)
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
 	req.Header.SetMethodBytes([]byte(method))
@@ -104,8 +104,9 @@ func ProcessRequest(DB *config.DbConfig, payload model.PayloadResponder) (error,
 	}
 	for ip := range allIps {
 		payload.Responder = allIps[ip].ServerIP
-		log.Println("Ips is", payload.Responder)
+		// log.Println("Ips is", payload.Responder)
 		addr := fmt.Sprintf("http://%s:%s/test", payload.Responder, allIps[ip].Port)
+
 		dataToSent, err := json.Marshal(payload)
 		if err != nil {
 			log.Println("error while marshal json.")

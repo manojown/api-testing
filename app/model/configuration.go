@@ -3,18 +3,18 @@ package model
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Configuration struct {
-	ID        primitive.ObjectID  `bson:"_id,omitempty" json:"id,omitempty"`
-	UserID    primitive.ObjectID  `bson:"userID,omitempty" json:"userID,omitempty"`
-	URL       string              `json:"url" bson:"url,omitempty"`
-	Requests  int64               `json:"requests" bson:"requests"`
-	Time      int                 `json:"time" bson:"time"`
-	Clients   int                 `json:"clients" bson:"clients"`
-	Headers   []map[string]string `json:"headers" bson:"headers"`
-	KeepAlive bool                `json:"keepAlive" bson:"keepAlive"`
-	Method    string              `json:"method" bson:"method"`
-	Ips       []string            `json:"ips" bson:"ips"`
-	PostData  interface{}         `json:"postData" bson:"postData"`
-	Created   int64               `json:"created" bson:"created"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID    primitive.ObjectID `bson:"userID,omitempty" json:"userID,omitempty"`
+	URL       string             `json:"url" bson:"url,omitempty"`
+	Requests  int64              `json:"requests" bson:"requests"`
+	Time      int                `json:"time" bson:"time"`
+	Clients   int                `json:"clients" bson:"clients"`
+	Headers   interface{}        `json:"headers" bson:"headers"`
+	KeepAlive bool               `json:"keepAlive" bson:"keepAlive"`
+	Method    string             `json:"method" bson:"method"`
+	Ips       []string           `json:"ips" bson:"ips"`
+	PostData  interface{}        `json:"postData" bson:"postData"`
+	Created   int64              `json:"created" bson:"created"`
 }
 
 type Server struct {

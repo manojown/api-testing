@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import RequestTable from "../Table/requestTable";
 import Modal from "../Modal";
-import RequestForm from "../Form/requestForm";
+import RequestForm from "./requestForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	createRequest,
@@ -18,8 +18,10 @@ function useQuery() {
 	return new URLSearchParams(useLocation().search);
 }
 function Home({ data }) {
-	let query = useQuery();
+	// let query = useQuery();
 	let [modal, setModal] = useState(false);
+	let [clone, setClone] = useState(false);
+
 	const { pagination } = useSelector(selectUtility);
 	const { page, limit } = pagination
 
@@ -27,7 +29,6 @@ function Home({ data }) {
 	const { isSuccess, isError, errorMessage, message, allRequest,isFetching } = useSelector(selectRequest);
 	const notifySuccess = (msg) => toast.success(msg);
 	const notifyFailed = (msg) => toast.error(msg);
-	console.log("is fetching,",isFetching)
 	const callApi = (request) => {
 		dispatch(createRequest(request));
 		setTimeout(() => dispatch(getAllRequests({limit,page})), 3000);
@@ -52,12 +53,12 @@ function Home({ data }) {
 		<div className='flex-1 self-center h-5/6 w-4/5 overflow-y-scroll'>
 			{modal ? (
 				<Modal>
-					<RequestForm setModal={setModal} callApi={callApi}  />
+					<RequestForm setModal={setModal} callApi={callApi} data={clone} />
 				</Modal>
 			) : (
 				""
 			)}
-			<RequestTable setModal={setModal} data={allRequest} isFetching={isFetching}/>
+			<RequestTable setModal={setModal} data={allRequest} isFetching={isFetching} setClone={setClone}/>
 		</div>
 	);
 }

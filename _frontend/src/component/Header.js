@@ -21,7 +21,6 @@ function Header() {
     setName(decoded.email)
   },[])
   const clear = () => {
-    console.log("clear stare call")
     dispatch(clearState())
   }
 	return (

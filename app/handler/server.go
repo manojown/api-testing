@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -27,6 +29,7 @@ import (
 // }
 
 func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+
 	var dbRequests []model.Configuration
 	_, options := helpers.ValidatePagination(r.URL.Query())
 	options.SetSort(bson.D{{"_id", -1}})
@@ -49,6 +52,7 @@ func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 		var request model.Configuration
 		if err = cursor.Decode(&request); err != nil {
 			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
+			return
 		}
 		dbRequests = append(dbRequests, request)
 	}
@@ -64,7 +68,6 @@ func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request
 	var dbRequests []model.TestResponse
 
 	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
-	log.Println("called this id", r.URL.Query().Get("id"))
 	criteria := bson.M{"userID": DB.User.ID}
 
 	if requestID != primitive.NilObjectID {
@@ -89,19 +92,29 @@ func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request
 
 }
 
+func iterate(data interface{}) {
+	v := reflect.ValueOf(data)
+	// log.Println("iterate:", data)
+	if v.Kind() == reflect.Map {
+		for _, key := range v.MapKeys() {
+			fmt.Println("data", v.MapIndex(key))
+		}
+	}
+}
+
 // NewSessionRequest is ...
 func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var response model.TestResponse
 	var conf model.Configuration
 	var paylodResponse model.PayloadResponder
-
 	responseReciever := make(chan model.TestResponse, 1)
+
 	err := json.NewDecoder(r.Body).Decode(&conf)
 
 	if err != nil {
 		ResponseWriter(rw, http.StatusInternalServerError, "Please check your input, is it valid!", err.Error())
+		return
 	}
-	// log.Println("ips is", conf.Ips)
 	requestID := helpers.CreateNewRequest(DB, conf)
 	paylodResponse.Conf = conf
 	paylodResponse.RequestID = requestID
@@ -150,7 +163,6 @@ func CreateServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) 
 	server.UserID = DB.User.ID
 
 	if server.Port == "" {
-
 		server.Port = "3004" // replace with default port WIP need to create constant
 	}
 
@@ -241,7 +253,7 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 			"lastConnected": server.LastConnected,
 		},
 	}
-	log.Println("update", server.Token, server.ServerIP)
+	// log.Println("update", server.Token, server.ServerIP)
 	_, _ = Collection.UpdateOne(nil, bson.M{"token": server.Token}, update)
 	// log.Println("server update via connector", isUpdate)
 

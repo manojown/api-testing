@@ -22,9 +22,9 @@ function Server({ data }) {
 
     const callApi = (serverBody) => {
 		dispatch(createServer(serverBody))
-		if(isError){
-			setTimeout(() => dispatch(getAllServers()),3000)
-		}
+		// if(isError){
+			setTimeout(() => dispatch(getAllServers(pagination)),3000)
+		// }
 	}
 
 	useEffect(() => {

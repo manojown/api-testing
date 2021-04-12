@@ -17,6 +17,7 @@ import (
 )
 
 func Test(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+
 	json.NewEncoder(rw).Encode("You are authorized person.")
 
 }

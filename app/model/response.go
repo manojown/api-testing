@@ -17,6 +17,7 @@ type TestResponse struct {
 	ReadThroughput  int64              `json:"readThroughput" bson:"readThroughput"`
 	PerSecond       int64              `json:"perSecond" bson:"perSecond"`
 	Created         int64              `json:"created" bson:"created"`
+	ResponseTime    int64              `json:"responseTime" bson:"responseTime"`
 }
 
 type Response struct {

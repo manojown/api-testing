@@ -52,7 +52,7 @@ function Home({ data }) {
 
 		<div className='flex-1  self-center  w-4/5 overflow-y-scroll '>
 			<div className=" ">
-			{performance ? <Stats  data={performance}/> : ""}
+			{performance && id ? <Stats  data={performance}/> : ""}
 			<PerformanceTable data={performance} pagination={pagination} isFetching={isFetching} />
 			</div>
 		</div>
