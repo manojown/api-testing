@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -24,6 +25,8 @@ func ValidatePagination(query url.Values) (bool, options.FindOptions) {
 
 		return true, options
 	}
+	options.SetSort(bson.D{{"_id", -1}})
+
 	return false, options
 
 }

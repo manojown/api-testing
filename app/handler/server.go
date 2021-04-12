@@ -1,13 +1,10 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -20,86 +17,40 @@ import (
 	"github.com/manojown/api-testing-premium/app/model"
 )
 
-// GetServerHandler is ...
-// func GetServerHandler(db *sql.DB, rw http.ResponseWriter, r *http.Request) {
-
-// 	data := getServer(db)
-// 	json.NewEncoder(rw).Encode(data)
-
-// }
-
 func UserRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 
-	var dbRequests []model.Configuration
-	_, options := helpers.ValidatePagination(r.URL.Query())
-	options.SetSort(bson.D{{"_id", -1}})
-
 	params := mux.Vars(r)
-	requestID, err := primitive.ObjectIDFromHex(params["id"])
 	criteria := bson.M{"userID": DB.User.ID}
+
+	_, options := helpers.ValidatePagination(r.URL.Query())
+	requestID, err := primitive.ObjectIDFromHex(params["id"])
+	checkError(rw, err, "Please check you params, It should be valid id.")
 
 	if requestID != primitive.NilObjectID {
 		criteria["requestID"] = requestID
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	Collection := DB.Collection("request")
-	cursor, err := Collection.Find(ctx, criteria, &options)
+	result, err := DB.Find("request", criteria, &options)
 
-	defer cursor.Close(ctx)
-
-	for cursor.Next(ctx) {
-		var request model.Configuration
-		if err = cursor.Decode(&request); err != nil {
-			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
-			return
-		}
-		dbRequests = append(dbRequests, request)
-	}
-
-	ResponseWriter(rw, http.StatusOK, "Request retrived successfully.", dbRequests)
+	checkError(rw, err, "Something went wrong while fetching your data.")
+	ResponseWriter(rw, http.StatusOK, "Request retrived successfully.", result)
 
 }
 
 func GetPerformance(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
-	_, options := helpers.ValidatePagination(r.URL.Query())
-	options.SetSort(bson.D{{"_id", -1}})
-
-	var dbRequests []model.TestResponse
-
-	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 	criteria := bson.M{"userID": DB.User.ID}
+	_, options := helpers.ValidatePagination(r.URL.Query())
+	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
 
 	if requestID != primitive.NilObjectID {
 		criteria["requestID"] = requestID
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	Collection := DB.Collection("result")
-	cursor, err := Collection.Find(ctx, criteria, &options)
+	result, err := DB.Find("server", criteria, &options)
+	checkError(rw, err, "Something went wrong while fetching your data.")
 
-	defer cursor.Close(ctx)
+	ResponseWriter(rw, http.StatusOK, "All performance metrics retrived successfully.", result)
 
-	for cursor.Next(ctx) {
-		var request model.TestResponse
-		if err = cursor.Decode(&request); err != nil {
-			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
-		}
-		dbRequests = append(dbRequests, request)
-	}
-
-	ResponseWriter(rw, http.StatusOK, "All performance metrics retrived successfully.", dbRequests)
-
-}
-
-func iterate(data interface{}) {
-	v := reflect.ValueOf(data)
-	// log.Println("iterate:", data)
-	if v.Kind() == reflect.Map {
-		for _, key := range v.MapKeys() {
-			fmt.Println("data", v.MapIndex(key))
-		}
-	}
 }
 
 // NewSessionRequest is ...
@@ -185,33 +136,22 @@ func CreateServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) 
 }
 
 func GetServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+
+	criteria := bson.M{"userID": DB.User.ID}
 	_, options := helpers.ValidatePagination(r.URL.Query())
-	options.SetSort(bson.D{{"_id", -1}})
-
-	var dbServers []model.Server
-
 	params := mux.Vars(r)
 	requestID, err := primitive.ObjectIDFromHex(params["id"])
-	criteria := bson.M{"userID": DB.User.ID}
+
+	checkError(rw, err, "Please check your params")
 
 	if requestID != primitive.NilObjectID {
 		criteria["_id"] = requestID
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	Collection := DB.Collection("server")
-	cursor, err := Collection.Find(ctx, criteria, &options)
 
-	defer cursor.Close(ctx)
+	result, err := DB.Find("server", criteria, &options)
+	checkError(rw, err, "Something went wrong while fetching your data.")
 
-	for cursor.Next(ctx) {
-		var server model.Server
-		if err = cursor.Decode(&server); err != nil {
-			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
-		}
-		dbServers = append(dbServers, server)
-	}
-
-	ResponseWriter(rw, http.StatusOK, "Server's retrived successfully.", dbServers)
+	ResponseWriter(rw, http.StatusOK, "Server's retrived successfully.", result)
 
 }
 
@@ -221,30 +161,21 @@ func GetServerRespone(DB *config.DbConfig, rw http.ResponseWriter, r *http.Reque
 
 	err := json.NewDecoder(r.Body).Decode(&payloadReciever)
 	checkErr(err)
-	log.Println("REcive from remote servver:GetServerRespone", payloadReciever)
 	response = payloadReciever.TestResponse
 	response.RequestURL = response.URL
 	response.UserID = payloadReciever.UserID
 	response.RequestID = payloadReciever.RequestID
 	response.Responder = payloadReciever.Responder
 	insertionID := helpers.InsertTestResult(DB, response)
-	log.Println("Data save to db DbConnect where id is:%d and responder is %s ", insertionID, response.Responder)
+	log.Printf("Data save to db DbConnect where id is:%d and responder is %s ", insertionID, response.Responder)
 
 }
 
 func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var server model.Server
-	// var dbServer model.Server
-
-	// ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-	if server.ServerIP == "" {
-		// server.ServerIP = ip
-	}
 	_ = json.NewDecoder(r.Body).Decode(&server)
 
 	Collection := DB.Collection("server")
-	// _ = Collection.FindOne(nil, bson.M{"token": server.Token}).Decode(&dbServer)
 	update := bson.M{
 		"$set": bson.M{
 			"diskSpace":     server.DiskSpace,
@@ -253,10 +184,7 @@ func Connector(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 			"lastConnected": server.LastConnected,
 		},
 	}
-	// log.Println("update", server.Token, server.ServerIP)
 	_, _ = Collection.UpdateOne(nil, bson.M{"token": server.Token}, update)
-	// log.Println("server update via connector", isUpdate)
-
 }
 
 func checkErr(err error) {
@@ -267,38 +195,35 @@ func checkErr(err error) {
 
 func GetPerformanceByUrl(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 	var data model.PerformanceCriteria
+	criteria := bson.M{"userID": DB.User.ID}
 
 	_, options := helpers.ValidatePagination(r.URL.Query())
-	options.SetSort(bson.D{{"_id", -1}})
-
 	err := json.NewDecoder(r.Body).Decode(&data)
-
-	var dbRequests []model.TestResponse
+	checkError(rw, err, "Please Check you perameter.")
 
 	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
-	criteria := bson.M{"userID": DB.User.ID}
+	checkError(rw, err, "Please Check your params. It should be valid id.")
+
 	if data.Url != "" {
 		criteria["url"] = data.Url
 	}
-
 	if requestID != primitive.NilObjectID {
 		criteria["requestID"] = requestID
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	Collection := DB.Collection("result")
-	cursor, err := Collection.Find(ctx, criteria, &options)
+	result, err := DB.Find("result", criteria, &options)
+	checkError(rw, err, "Something went wrong while fetching your data.")
 
-	defer cursor.Close(ctx)
+	ResponseWriter(rw, http.StatusOK, "All performance metrics retrived successfully.", result)
 
-	for cursor.Next(ctx) {
-		var request model.TestResponse
-		if err = cursor.Decode(&request); err != nil {
-			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
+}
+
+func checkError(rw http.ResponseWriter, err error, message string) {
+	if err != nil {
+		if message != "" {
+			ResponseWriter(rw, http.StatusInternalServerError, message, err.Error())
+		} else {
+			ResponseWriter(rw, http.StatusInternalServerError, err.Error(), err.Error())
 		}
-		dbRequests = append(dbRequests, request)
 	}
-
-	ResponseWriter(rw, http.StatusOK, "All performance metrics retrived successfully.", dbRequests)
-
 }

@@ -38,6 +38,29 @@ func (db *DbConfig) Collection(collectionName string) *mongo.Collection {
 
 }
 
+func (db *DbConfig) Find(collectionName string, filter interface{}, options *options.FindOptions) (interface{}, error) {
+
+	var items []interface{}
+
+	collection := db.Client.Database("test").Collection(collectionName)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	cursor, err := collection.Find(ctx, filter, options)
+
+	if err != nil {
+		return err, nil
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var item interface{}
+		if err = cursor.Decode(&item); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
 func NewConfig() *DbConfig {
 	config := new(DbConfig)
 	config.initialize()
