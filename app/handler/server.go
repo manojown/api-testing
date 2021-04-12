@@ -264,3 +264,41 @@ func checkErr(err error) {
 		panic(err)
 	}
 }
+
+func GetPerformanceByUrl(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+	var data model.PerformanceCriteria
+
+	_, options := helpers.ValidatePagination(r.URL.Query())
+	options.SetSort(bson.D{{"_id", -1}})
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	var dbRequests []model.TestResponse
+
+	requestID, err := primitive.ObjectIDFromHex(r.URL.Query().Get("id"))
+	criteria := bson.M{"userID": DB.User.ID}
+	if data.Url != "" {
+		criteria["url"] = data.Url
+	}
+
+	if requestID != primitive.NilObjectID {
+		criteria["requestID"] = requestID
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	Collection := DB.Collection("result")
+	cursor, err := Collection.Find(ctx, criteria, &options)
+
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var request model.TestResponse
+		if err = cursor.Decode(&request); err != nil {
+			ResponseWriter(rw, http.StatusInternalServerError, "Error while process docs", err.Error())
+		}
+		dbRequests = append(dbRequests, request)
+	}
+
+	ResponseWriter(rw, http.StatusOK, "All performance metrics retrived successfully.", dbRequests)
+
+}

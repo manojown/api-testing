@@ -9,7 +9,9 @@
 /_frontend/coverage
 
 # production
-# /_frontend/build
+/_frontend/build
+/_frontend/docs
+
 # misc
 .DS_Store
 .env.local

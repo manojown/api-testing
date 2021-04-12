@@ -10,6 +10,8 @@ import Performance from './component/Performance';
 import Servers from './component/Server';
 import Download from './component/Download';
 import Dashboard from './component/Dashboard';
+import Report from './component/Report';
+
 
 
 
@@ -27,6 +29,8 @@ function App() {
           <PrivateRoute exact component={Performance} path="/performace" />
           <PrivateRoute exact component={Servers} path="/server" />
           <PrivateRoute exact component={Download} path="/download" />
+          <PrivateRoute exact component={Report} path="/report" />
+
         </Switch>
       </Router>
     </div>

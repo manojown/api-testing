@@ -18,6 +18,24 @@ export const createRequest = createAsyncThunk(
 	}
 );
 
+
+export const getRequestByUrl = createAsyncThunk(
+	"[POST]/request",
+	async (requestPayload, thunkAPI) => {
+		try {
+			let response = await ApiCall("/performancebyurl", "POST", null, requestPayload);
+
+			if (response.status === 200) {
+				return { ...response };
+			} else {
+				return thunkAPI.rejectWithValue(response);
+			}
+		} catch (e) {
+			return thunkAPI.rejectWithValue(e.response.data);
+		}
+	}
+);
+
 export const getAllRequests = createAsyncThunk("[GET]/request", async (params, thunkAPI) => {
 	try {
 		let response = await ApiCall("/request", "GET", params);
@@ -85,6 +103,25 @@ export const requestSlice = createSlice({
 			return state;
 		},
 		[getAllRequests.pending]: (state) => {
+			state.isFetching = true;
+			return state;
+		},
+		[getRequestByUrl.fulfilled]: (state, { payload }) => {
+			// console.log("payload", payload);
+			state.requestByUrl = payload && payload.data;
+			state.isFetching = false;
+			state.isSuccess = true;
+			state.message = payload && payload.message;
+			return state;
+		},
+		[getRequestByUrl.rejected]: (state, { payload }) => {
+			state.isFetching = false;
+			state.requestByUrl = null
+			state.isError = true;
+			state.errorMessage = payload && payload.message;
+			return state;
+		},
+		[getRequestByUrl.pending]: (state) => {
 			state.isFetching = true;
 			return state;
 		},

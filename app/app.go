@@ -59,6 +59,8 @@ func (app *App) run() {
 }
 
 func (app *App) setRouter() {
+
+	app.apiHandler("/performancebyurl", "POST", handler.GetPerformanceByUrl, true)
 	app.apiHandler("/registration", "POST", handler.Registeration, false)
 	app.apiHandler("/login", "POST", handler.Login, false)
 	app.apiHandler("/test", "GET", handler.Test, true)

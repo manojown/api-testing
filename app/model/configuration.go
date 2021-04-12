@@ -64,3 +64,7 @@ type MemStatus struct {
 	Used uint64 `json:"used" bson:"used"`
 	Free uint64 `json:"free" bson:"free"`
 }
+
+type PerformanceCriteria struct {
+	Url string `json:"url"`
+}

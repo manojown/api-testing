@@ -16,6 +16,10 @@
         path: "/server"
     },
     {
+        name: "Reports",
+        path: "/report"
+    },
+    {
         name: "Download Clients",
         path: "/download"
     }
