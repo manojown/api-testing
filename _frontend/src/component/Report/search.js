@@ -1,7 +1,6 @@
 import React from "react";
 
 function search({uniqueUrl,getUrl,url}) {
-	// console.log("url is", props.uniqueUrl);
 	return (			
             <div className='mt-2 relative inline-flex  w-full'>
 							<svg
@@ -16,7 +15,7 @@ function search({uniqueUrl,getUrl,url}) {
                                 onChange={(e) => { getUrl(e.target.value) }}
                                 >
 								<option>Select Url</option>
-								{uniqueUrl.map((url) => <option>{url}</option>)}
+								{uniqueUrl && uniqueUrl.length && uniqueUrl.map((url) => <option>{url}</option>)}
 							</select>
 			</div>
 
@@ -26,16 +25,3 @@ function search({uniqueUrl,getUrl,url}) {
 export default search;
 
 
-function List(urls) {
-     urls.push(urls[0])
-	return urls.map((url) => (
-		<div class=" text-sm">
-                        <div class="cursor-pointer text-gray-700 bg-white hover:text-blue-400 hover:bg-blue-100 rounded-md px-2 py-2 my-2">
-                            <span class="bg-gray-400 h-1 w-2 m-2 rounded-full"></span>
-                            <div class="flex-grow font-medium px-2">{url}</div>
-                            {/* <div class="text-sm font-normal text-gray-500 tracking-wide">Team</div> */}
-                        </div>
-                        </div>
-	));
-
-}

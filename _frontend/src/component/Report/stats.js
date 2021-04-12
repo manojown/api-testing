@@ -44,12 +44,8 @@ function calculateState(data){
 
 
     })
-		// console.log("current.sucessRequests",obj)
 
     return obj;
-    // failedRequest: 4239
-// networkFailed: 0
-
 }
 
 function aa(matrix){
@@ -93,28 +89,28 @@ function aa(matrix){
 			<div className="p-5 bg-white rounded shadow-sm">
 				<div className="text-base text-blue-600 ">Per Seconds </div>
 				<div className="flex justify-center pt-1">
-					<div className="text-2xl self-center font-bold text-blue-600 ">{numFormate(matrix.perSecond/matrix.totalCounted)}</div>
+					<div className="text-2xl self-center font-bold text-blue-600 ">{matrix.perSecond && matrix.totalCounted && numFormate(matrix.perSecond/matrix.totalCounted)}</div>
 					
 				</div>
 			</div>
 			<div className="p-5 bg-white rounded shadow-sm">
 				<div className="text-base text-blue-600 ">Average Response Time</div>
 				<div className="flex justify-center pt-1">
-					<div className="text-2xl self-center font-bold text-blue-600 ">{parseInt((matrix.responseTime/matrix.totalCounted)/1000)}ms</div>
+					<div className="text-2xl self-center font-bold text-blue-600 ">{matrix.responseTime && matrix.totalCounted && parseInt((matrix.responseTime/matrix.totalCounted)/1000)}ms</div>
 					
 				</div>
 			</div>
 			<div className="p-5 bg-white rounded shadow-sm">
 				<div className="text-base text-blue-600 ">Read Throughput</div>
 				<div className="flex justify-center pt-1">
-					<div className="text-2xl self-center font-bold text-blue-600 ">{convertToMb(matrix.readThroughput/matrix.totalCounted)}ps</div>
+					<div className="text-2xl self-center font-bold text-blue-600 ">{matrix.readThroughput && matrix.totalCounted && convertToMb(matrix.readThroughput/matrix.totalCounted)}ps</div>
 					
 				</div>
 			</div>
 			<div className="p-5 bg-white rounded shadow-sm">
 				<div className="text-base text-blue-600 ">Write Throughput</div>
 				<div className="flex justify-center pt-1">
-					<div className="text-2xl self-center font-bold text-blue-600 ">{convertToMb(matrix.writeThroughput/matrix.totalCounted)}ps</div>
+					<div className="text-2xl self-center font-bold text-blue-600 ">{matrix.writeThroughput && matrix.totalCounted && convertToMb(matrix.writeThroughput/matrix.totalCounted)}ps</div>
 					
 				</div>
 			</div>
