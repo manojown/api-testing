@@ -38,27 +38,29 @@ func (db *DbConfig) Collection(collectionName string) *mongo.Collection {
 
 }
 
-func (db *DbConfig) Find(collectionName string, filter interface{}, options *options.FindOptions) (interface{}, error) {
+func (db *DbConfig) Find(collectionName string, holder interface{}, filter interface{}, options *options.FindOptions) (interface{}, error) {
 
-	var items []interface{}
-
+	dataHolder := findType(holder)
 	collection := db.Client.Database("test").Collection(collectionName)
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	cursor, err := collection.Find(ctx, filter, options)
 
-	if err != nil {
-		return err, nil
-	}
-	defer cursor.Close(ctx)
+	err = cursor.All(nil, &dataHolder)
+	// log.Println("called", items, err)
 
-	for cursor.Next(ctx) {
-		var item interface{}
-		if err = cursor.Decode(&item); err != nil {
-			return nil, err
-		}
-		items = append(items, item)
+	if err != nil {
+		return nil, err
 	}
-	return items, nil
+	return dataHolder, nil
+
+	// for cursor.Next(ctx) {
+	// 	var item interface{}
+	// 	if err = cursor.Decode(&item); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	items = append(items, item)
+	// }
+	// return items, nil
 }
 
 func NewConfig() *DbConfig {
@@ -71,4 +73,23 @@ func checkErr(err error) {
 	if err != nil {
 		panic("error is" + err.Error())
 	}
+}
+
+func findType(x interface{}) interface{} {
+	// log.Printf("Data of type %T and value %v", x, x)
+	switch x.(type) {
+	case []model.TestResponse:
+		var response []model.TestResponse
+		return response
+	case []model.Configuration:
+		var response []model.Configuration
+		return response
+	case []model.Server:
+		var response []model.Server
+		return response
+	default:
+		var response interface{}
+		return response
+	}
+
 }

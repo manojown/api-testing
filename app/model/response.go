@@ -25,6 +25,10 @@ type Response struct {
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
+type ResponseLogging struct {
+	Response Response `json:"response,omitempty"`
+	Method   string   `json:"methd,omitempty"`
+}
 
 func NewResponse(status int, Message string, data interface{}) *Response {
 

@@ -3,12 +3,12 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
 	helper "github.com/manojown/api-testing-premium/app/helper"
 	"github.com/manojown/api-testing-premium/app/model"
+	"github.com/manojown/api-testing-premium/app/services"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
@@ -23,25 +23,24 @@ func Test(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllUser(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+	var methodName string = "GetAllUser"
 
 	var dbUsers []model.User
+	options := options.FindOptions{}
+	options.SetProjection(bson.D{{"_id", 1}, {"email", 1}, {"name", 1}})
 
-	Collection := DB.Collection("user")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	cursor, err := Collection.Find(ctx, bson.M{}, options.Find().SetProjection(bson.D{{"_id", 1}, {"email", 1}, {"name", 1}}))
-	defer cursor.Close(ctx)
-	for cursor.Next(ctx) {
-		var user model.User
-		if err = cursor.Decode(&user); err != nil {
-			log.Println("Error while data parse:GetAllUser", err.Error())
-		}
-		dbUsers = append(dbUsers, user)
+	result, err := DB.Find("user", dbUsers, bson.M{}, &options)
+
+	if err != nil {
+		services.ResponseWriter(rw, methodName, http.StatusOK, "Error while retriving all users.", err)
+		return
 	}
-	ResponseWriter(rw, http.StatusOK, "User retrived successfully.", dbUsers)
-
+	result = result.([]model.User)
+	services.ResponseWriter(rw, methodName, http.StatusOK, "User retrived successfully.", result)
 }
 
 func Registeration(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) {
+	var methodName string = "GetAllUser"
 	var user model.User
 	var dbUser model.User
 
@@ -55,20 +54,21 @@ func Registeration(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request)
 	Collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
 
 	if dbUser.Email == user.Email {
-		ResponseWriter(rw, http.StatusConflict, "User is already register with same Email Address.", "Register with other email address.")
+		services.ResponseWriter(rw, methodName, http.StatusConflict, "User is already register with same Email Address.", "Register with other email address.")
 		return
 	}
 	result, err := Collection.InsertOne(nil, user)
-	log.Println("result", result)
 	if err != nil {
-		ResponseWriter(rw, http.StatusInternalServerError, "Something went wrong while insertion.", err)
+		services.ResponseWriter(rw, methodName, http.StatusInternalServerError, "Something went wrong while insertion.", err)
 		return
 	}
-	ResponseWriter(rw, http.StatusOK, "User created successfully.", result)
+	services.ResponseWriter(rw, methodName, http.StatusOK, "User created successfully.", result)
 
 }
 
 func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Request) {
+	var methodName string = "Login"
+
 	var user model.User
 	var dbUser model.User
 
@@ -79,7 +79,7 @@ func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Requ
 	err = Collection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&dbUser)
 
 	if dbUser.Email == "" {
-		ResponseWriter(response, http.StatusInternalServerError, "You are not register with us.", err)
+		services.ResponseWriter(response, methodName, http.StatusInternalServerError, "You are not register with us.", err)
 		return
 	}
 
@@ -89,14 +89,14 @@ func Login(DB *config.DbConfig, response http.ResponseWriter, request *http.Requ
 	passErr := bcrypt.CompareHashAndPassword(dbPassBuffered, userPass)
 
 	if passErr != nil {
-		ResponseWriter(response, http.StatusInternalServerError, "Email or password incorrect.", passErr)
+		services.ResponseWriter(response, methodName, http.StatusInternalServerError, "Email or password incorrect.", passErr)
 		return
 	}
 	jwtToken, err := helper.GenerateJWT(dbUser)
 	if err != nil {
-		ResponseWriter(response, http.StatusInternalServerError, "Something went wrong.", err.Error())
+		services.ResponseWriter(response, methodName, http.StatusInternalServerError, "Something went wrong.", err)
 		return
 	}
 
-	ResponseWriter(response, http.StatusOK, "User loggedIn successfully.", jwtToken)
+	services.ResponseWriter(response, methodName, http.StatusOK, "User loggedIn successfully.", jwtToken)
 }
