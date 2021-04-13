@@ -41,7 +41,7 @@ export default function PerformanceTable({ data, isFetching }) {
 }
 
 function tableData(index, data, columns) {
-	return columns.map((column,index) => (
+	return columns.map((column) => (
 		<td key={index} className='px-6 py-4 whitespace-nowrap text-center  '>
 			{!column.accessor ? (
 				<div className='text-sm text-gray-500'>{index + 1}</div>
