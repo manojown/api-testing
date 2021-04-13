@@ -11,7 +11,7 @@
 # production
 /_frontend/build
 /_frontend/docs
-
+/*.log
 # misc
 .DS_Store
 .env.local
