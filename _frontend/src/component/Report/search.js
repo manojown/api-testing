@@ -15,7 +15,7 @@ function search({uniqueUrl,getUrl,url}) {
                                 onChange={(e) => { getUrl(e.target.value) }}
                                 >
 								<option>Select Url</option>
-								{uniqueUrl && uniqueUrl.length && uniqueUrl.map((url) => <option>{url}</option>)}
+								{uniqueUrl && uniqueUrl.length && uniqueUrl.map((url,index) => <option key={index}>{url}</option>)}
 							</select>
 			</div>
 

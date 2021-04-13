@@ -1,50 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { selectUser,  signupUser, checkLogin,clearState } from "../features/userSlice";
+import { selectUser, signupUser, checkLogin, clearState } from "../features/userSlice";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { useHistory,Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
 
 function Register() {
 	let [email, setEmail] = useState("");
 	let [password, setPassword] = useState("");
 	let [name, setName] = useState("");
 
-	const { isFetching, isSuccess, isError, errorMessage,isLoggedIn } = useSelector(selectUser);
-	
+	const { isFetching, isSuccess, isError, errorMessage, isLoggedIn } = useSelector(selectUser);
+
 	const history = useHistory();
 	const dispatch = useDispatch();
 	const notifySuccess = (msg) => toast.success(msg);
 	const notifyFailed = (msg) => toast.error(msg);
-	
+
 	const signUp = (e) => {
 		e.preventDefault();
-		dispatch(signupUser({email,password,name}))
-	}
+		dispatch(signupUser({ email, password, name }));
+	};
 
 	useEffect(() => {
-        dispatch(checkLogin());
-	},[])
-	
+		dispatch(checkLogin());
+	}, [dispatch]);
+
 	useEffect(() => {
 		if (isError) {
-            dispatch(clearState());
-            notifyFailed(errorMessage ? errorMessage : "Failed to login.")
+			dispatch(clearState());
+			notifyFailed(errorMessage ? errorMessage : "Failed to login.");
 		}
 
 		if (isSuccess) {
-			notifySuccess("SignUp successfully.")
-            dispatch(clearState());
+			notifySuccess("SignUp successfully.");
+			dispatch(clearState());
 			history.push("/");
 		}
-		if(isLoggedIn){
-			notifySuccess("You are already loggedIn.")
-            dispatch(clearState());
+		if (isLoggedIn) {
+			notifySuccess("You are already loggedIn.");
+			dispatch(clearState());
 			history.push("/");
-			
 		}
-	}, [isError, isSuccess, isLoggedIn,isFetching]);
+	}, [dispatch, history, errorMessage, isError, isSuccess, isLoggedIn, isFetching]);
 
 	return (
 		<div className='w-full max-w-xs '>
@@ -76,7 +74,6 @@ function Register() {
 						type='text'
 						placeholder='Email'
 						onChange={(e) => setEmail(e.target.value)}
-
 					/>
 				</div>
 				<div className='mb-6'>
@@ -90,19 +87,20 @@ function Register() {
 						type='password'
 						placeholder='******************'
 						onChange={(e) => setPassword(e.target.value)}
-
 					/>
 					{/* <p className='text-red-500 text-xs italic'>Please choose a password.</p> */}
 				</div>
 				<div className='flex items-center justify-between'>
 					<button
 						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-						type='button' onClick={signUp}>
+						type='button'
+						onClick={signUp}>
 						Sign up
 					</button>
 					<Link
 						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-						type='submit' to="/login">
+						type='submit'
+						to='/login'>
 						Login
 					</Link>
 				</div>

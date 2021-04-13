@@ -1,10 +1,7 @@
-import React, { Component, useState } from "react";
-import { selectDownload, downloadPaths, clearState } from '../../features/downloadSlice';
-import { useDispatch,useSelector } from "react-redux";
+import React, { useState } from "react";
+import { selectDownload, downloadPaths } from "../../features/downloadSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-// let URL = 'http://35.154.34.85:1880/history'
-
-// import RequestStats from './RequestStats';
 
 function ServerForm(props) {
 	const [serverIP, setServerIP] = useState(props.data ? props.data.serverIP : "");
@@ -12,24 +9,19 @@ function ServerForm(props) {
 	const [port, setPort] = useState(props.data ? props.data.port : "");
 	const [serverOS, setServer] = useState(props.data ? props.data.serverOS : "");
 
-
-
-	const dispatch = useDispatch()
+	const dispatch = useDispatch();
 	const { downloads } = useSelector(selectDownload);
-	console.log("server is",serverOS)
 
 	const clickToDownloadOs = () => {
-		console.log("click to download")
-		dispatch(downloadPaths())
-	}
+		dispatch(downloadPaths());
+	};
 	const sayHello = () => {
 		const requestBody = {
 			serverIP,
 			name,
 			port,
-			serverOS
+			serverOS,
 		};
-		// props.setrequestForm(false);
 		props.callApi(requestBody);
 	};
 
@@ -38,7 +30,7 @@ function ServerForm(props) {
 			<div className='bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4'>
 				<div className='sm:flex sm:items-center justify-center'>
 					<form className='pt-6 pb-2 my-2 w-full'>
-					<div className=' mt-7  relative inline-flex  w-full mb-8'>
+						<div className=' mt-7  relative inline-flex  w-full mb-8'>
 							<svg
 								className='w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none'
 								xmlns='http://www.w3.org/2000/svg'
@@ -51,9 +43,11 @@ function ServerForm(props) {
 								className='border border-gray-300 rounded-full w-full text-gray-600 h-10 pl-5 pr-10 bg-white hover:border-gray-400 focus:outline-none appearance-none'
 								onChange={(e) => setServer(e.target.value)}>
 								<option>Select Server Type</option>
-								{downloads ? downloads.map(data => 
-									<option>{data.name.split("-").slice(1).join(" ")}</option>
-								) : ""}
+								{downloads
+									? downloads.map((data) => (
+											<option>{data.name.split("-").slice(1).join(" ")}</option>
+									  ))
+									: ""}
 							</select>
 						</div>
 						<div className='mb-6'>
@@ -89,7 +83,6 @@ function ServerForm(props) {
 								onChange={(e) => setName(e.target.value)}
 							/>
 						</div>
-						
 					</form>
 				</div>
 			</div>

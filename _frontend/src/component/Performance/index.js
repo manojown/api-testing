@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import {
 	useLocation,
   } from "react-router-dom";
-import Stats from "../Performance/stats"
+import Stats from "../_Shared/stats"
 
 function useQuery() {
 	return new URLSearchParams(useLocation().search);
@@ -29,11 +29,11 @@ function Home({ data }) {
 
 	useEffect(() => {
 		dispatch(clearStatsForUtility())
-	},[])
+	},[dispatch])
 
 	useEffect(() => {
 		dispatch(getAllPerformances({id,limit,page}))
-	},[page])
+	},[dispatch,id,limit,page])
 
 	useEffect(() => {
 		if (isError) {
@@ -46,7 +46,7 @@ function Home({ data }) {
         }
         
 	
-	}, [isError, isSuccess]);
+	}, [dispatch,isError, isSuccess,errorMessage,message]);
 
 	return (
 

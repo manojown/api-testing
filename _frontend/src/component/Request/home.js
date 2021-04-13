@@ -10,33 +10,29 @@ import {
 	getAllRequests,
 } from "../../features/requestSlice";
 import toast from "react-hot-toast";
-import { useLocation } from "react-router-dom";
-import {  selectUtility } from "../../features/utilitySlice";
+import { selectUtility } from "../../features/utilitySlice";
 
-
-function useQuery() {
-	return new URLSearchParams(useLocation().search);
-}
-function Home({ data }) {
-	// let query = useQuery();
+function Home() {
 	let [modal, setModal] = useState(false);
 	let [clone, setClone] = useState(false);
 
 	const { pagination } = useSelector(selectUtility);
-	const { page, limit } = pagination
+	const { page, limit } = pagination;
 
 	const dispatch = useDispatch();
-	const { isSuccess, isError, errorMessage, message, allRequest,isFetching } = useSelector(selectRequest);
+	const { isSuccess, isError, errorMessage, message, allRequest, isFetching } = useSelector(
+		selectRequest
+	);
 	const notifySuccess = (msg) => toast.success(msg);
 	const notifyFailed = (msg) => toast.error(msg);
 	const callApi = (request) => {
 		dispatch(createRequest(request));
-		setTimeout(() => dispatch(getAllRequests({limit,page})), 3000);
+		setTimeout(() => dispatch(getAllRequests({ limit, page })), 3000);
 	};
 
 	useEffect(() => {
-		dispatch(getAllRequests({limit,page}));
-	}, [page]);
+		dispatch(getAllRequests({ limit, page }));
+	}, [dispatch, page, limit]);
 
 	useEffect(() => {
 		if (isError) {
@@ -48,7 +44,7 @@ function Home({ data }) {
 			setModal(false);
 			dispatch(clearState());
 		}
-	}, [isError, isSuccess]);
+	}, [dispatch, isError, isSuccess, errorMessage, message]);
 	return (
 		<div className='flex-1 self-center h-5/6 w-4/5 overflow-y-scroll'>
 			{modal ? (
@@ -58,7 +54,12 @@ function Home({ data }) {
 			) : (
 				""
 			)}
-			<RequestTable setModal={setModal} data={allRequest} isFetching={isFetching} setClone={setClone}/>
+			<RequestTable
+				setModal={setModal}
+				data={allRequest}
+				isFetching={isFetching}
+				setClone={setClone}
+			/>
 		</div>
 	);
 }

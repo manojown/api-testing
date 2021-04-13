@@ -27,7 +27,6 @@ export const loginUser = createAsyncThunk("users/login", async (payload, thunkAP
 		// console.log("--user pass", email, password )
 		let response = await ApiCall("/login",'POST',{},payload)
 		let data =  response.data
-		console.log("data",data.data)
 		if (response.status === 200) {
 			localStorage.setItem("token", data);
 			return data;

@@ -35,7 +35,6 @@ Instance.interceptors.response.use(function (response) {
     response =  JSON.parse(response.data)
     return response
   }, function (error) {
-    console.log("error in reques",error)
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if(error.response.status === 401){

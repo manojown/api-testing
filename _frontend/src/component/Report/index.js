@@ -1,5 +1,5 @@
-import React, {useEffect,useState} from 'react'
-import Stats from './stats'
+import React, {useEffect} from 'react'
+import Stats from '../_Shared/stats'
 import Search from './search'
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,13 +14,13 @@ function Index() {
 	const { allRequest, requestByUrl, isFetching } = useSelector(selectRequest);
 	useEffect(() => {
         dispatch(getAllRequests({}))
-    },[])
+    },[dispatch])
 
     const getUrl = (urlRecived) => {
         dispatch(getRequestByUrl({url:urlRecived}))
     }
     let obj = {}
-    allRequest && allRequest.forEach(data => {
+    allRequest && allRequest.length && allRequest.forEach(data => {
         obj[data.url] = data.url
     })
     let uniqueUrl = Object.keys(obj)

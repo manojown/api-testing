@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {convertToMb} from "../../helpers/utility"
 
 function DownloadPage({ downloads }) {
 	let [search, setSearch] = useState([]);
@@ -6,28 +7,27 @@ function DownloadPage({ downloads }) {
 
 	return (
 		<div className=' self-center w-4/5  overflow-y-scroll'>
-
-		<div className='bg-white px-4 flex py-5 sm:grid sm:grid-cols-3 sm:gap-4 mt-8 sm:px-6 flex justify-center items-center p-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  h-4/5'>
-			{/* <h1>Download your Appropriate binary.</h1> */}
-			<div className='flex self-center '>
-				<span className='text-sm border  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap'>
-					Search:
-				</span>
-				<input
-					name='field_name'
-					className='border border-2 rounded-r px-4 py-2 w-full'
-					type='text'
-					placeholder='Search your connector by os and arch'
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-				/>
+			<div className='bg-white px-4 flex py-5 sm:grid sm:grid-cols-3 sm:gap-4 mt-8 sm:px-6 flex justify-center items-center p-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  h-4/5'>
+				{/* <h1>Download your Appropriate binary.</h1> */}
+				<div className='flex self-center '>
+					<span className='text-sm border  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap'>
+						Search:
+					</span>
+					<input
+						name='field_name'
+						className='border border-2 rounded-r px-4 py-2 w-full'
+						type='text'
+						placeholder='Search your connector by os and arch'
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+					/>
+				</div>
+				<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-4 w-full h-full overflow-auto'>
+					<ul className='border border-gray-200 rounded-md divide-y divide-gray-200'>
+						{downloads.length ? getAllDownload(downloads, search) : ""}
+					</ul>
+				</dd>
 			</div>
-			<dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-4 w-full h-full overflow-auto'>
-				<ul className='border border-gray-200 rounded-md divide-y divide-gray-200'>
-					{downloads.length ? getAllDownload(downloads, search) : ""}
-				</ul>
-			</dd>
-		</div>
 		</div>
 	);
 }
@@ -41,9 +41,10 @@ function getAllDownload(downloads, search) {
 				let pos = download.name.search(search);
 				if (pos > -1) return true;
 			} else return true;
+			return false // to fix stupid react warning
 		})
 		.map((download) => {
-			let [_, osName, arch] = download.name.split("-");
+			let [, osName, arch] = download.name.split("-");
 			return (
 				<li className='pl-3 pr-4  py-3 flex items-center justify-between text-sm'>
 					<div className='w-0 flex-1 flex items-center'>
@@ -71,7 +72,7 @@ function getAllDownload(downloads, search) {
 						</span>
 						<span className='ml-2 flex-1 w-0 truncate'>
 							<span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800'>
-							{bytesToSize(download.size)}
+								{convertToMb(download.size)}
 							</span>
 						</span>
 					</div>
@@ -85,17 +86,10 @@ function getAllDownload(downloads, search) {
 				</li>
 			);
 		});
-	if (d.length == 0) {
+	if (d.length === 0) {
 		return <h1>Sorry No match found...</h1>;
 	}
 	return d;
 }
 
 
-function bytesToSize(bytes) {
-	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-	if (bytes == 0) return '0 Byte';
-	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-	return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
- }
- 

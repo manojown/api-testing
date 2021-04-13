@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Table from "../Table";
 import { pagination as paginationUtils } from "../../helpers/utility";
 import { selectUtility, setPagination } from "../../features/utilitySlice";
@@ -12,8 +12,8 @@ export default function PerformanceTable({ setModal, data, isFetching }) {
 		let params = paginationUtils(payload, pagination);
 		dispatch(setPagination(params));
 	};
-	
-	let currentIndex = (pagination.page-1)*pagination.limit
+
+	let currentIndex = (pagination.page - 1) * pagination.limit;
 
 	return (
 		<>
@@ -28,32 +28,37 @@ export default function PerformanceTable({ setModal, data, isFetching }) {
 						Create New Server
 					</button>
 				</div>
-				{ isFetching ? "Loading ..." : <Table headings={headings} paginate={paginate} count={data && data.length} pagination={pagination}>
-					{data && data.map((row, index) => tableData((index+currentIndex), row))}
-				</Table>}
+				{isFetching ? (
+					"Loading ..."
+				) : (
+					<Table
+						headings={headings}
+						paginate={paginate}
+						count={data && data.length}
+						pagination={pagination}>
+						{data && data.map((row, index) => tableData(index + currentIndex, row))}
+					</Table>
+				)}
 			</div>
 		</>
 	);
 }
 
-function CopyCommand(data){
-	// console.log("data os",data.serverOS)
-	let path = `connector-${data.serverOS.split(" ").join("-")}`
-	let port = data.port ? data.port : "3004"
-
+function CopyCommand(data) {
+	let path = `connector-${data.serverOS.split(" ").join("-")}`;
+	let port = data.port ? data.port : "3004";
 	let cmd = `sudo wget https://github.com/manojown/api-testing-connector/raw/master/download/${path} ; sudo chmod +x connector-* ; ./connector-* -token=${data.token} -url=https://api-testing-premium.herokuapp.com -port=${port}`;
-	navigator.clipboard.writeText(cmd)
-	toast.success("Copy from clipboard successfully.")
-
+	navigator.clipboard.writeText(cmd);
+	toast.success("Copy from clipboard successfully.");
 }
 function tableData(index, data) {
 	return (
-		<tr>
+		<tr key={index}>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
 				<div className='text-sm text-gray-500'>{index + 1}</div>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
-	<div className='text-sm text-gray-500'>{data.name}</div>
+				<div className='text-sm text-gray-500'>{data.name}</div>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
 				<div className='text-sm text-gray-500'>{data.token}</div>
@@ -66,41 +71,35 @@ function tableData(index, data) {
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
 				<span className='ml-2 flex-1 w-0 truncate'>
-							<span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-					{Math.ceil((Date.now() - new Date(data.lastConnected*1000))/1000) < 60 ? "Connected" : "Not-Connected"}
+					<span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+						{Math.ceil((Date.now() - new Date(data.lastConnected * 1000)) / 1000) < 60
+							? "Connected"
+							: "Not-Connected"}
 					</span>
-					</span>
+				</span>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
-				<div className='text-sm text-gray-500'>{new Date(data.created*1000).toDateString()}</div>
+				<div className='text-sm text-gray-500'>{new Date(data.created * 1000).toDateString()}</div>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<span  className='text-indigo-600 hover:text-indigo-900' onClick={() => CopyCommand(data)}>
+				<span className='text-indigo-600 hover:text-indigo-900' onClick={() => CopyCommand(data)}>
 					Copy command
 				</span>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<a href='#' className='text-indigo-600 hover:text-indigo-900'>
-					Disk
-				</a>
+				<span className='text-indigo-600 hover:text-indigo-900'>Disk</span>
 			</td>
-			
+
 			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<a href='#' className='text-indigo-600 hover:text-indigo-900'>
-					CPU
-				</a>
+				<span className='text-indigo-600 hover:text-indigo-900'>CPU</span>
 			</td>
-		
+
 			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<a href='#' className='text-indigo-600 hover:text-indigo-900'>
-					RAM
-				</a>
+				<span className='text-indigo-600 hover:text-indigo-900'>RAM</span>
 			</td>
 		</tr>
 	);
 }
-
-
 
 let headings = [
 	{ name: "Index" },

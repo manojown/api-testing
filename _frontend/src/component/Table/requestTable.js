@@ -5,7 +5,7 @@ import Time from "../_Helpers/TImer";
 import { pagination as paginationUtils } from "../../helpers/utility";
 import { selectUtility, setPagination } from "../../features/utilitySlice";
 import { clearState } from "../../features/requestSlice";
-import Tooltip from "../_Shared/tooltip";
+// import Tooltip from "../_Shared/tooltip";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -60,14 +60,14 @@ export default function RequestTable({ setModal, data, isFetching, setClone }) {
 
 function tableData(index, data, history, clone) {
 	return (
-		<tr>
+		<tr key={index}>
 			<td className='px-6 py-4 whitespace-nowrap text-center  '>
 				<div className='text-sm text-gray-500'>{index + 1}</div>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap text-center '>
 				<div className='flex justify-center text-sm text-gray-500'>
 					{/* <Tooltip tooltipText={data.url}> */}
-						{data.url && data.url.length ? data.url.split("/")[2] : data.url}
+					{data.url && data.url.length ? data.url.split("/")[2] : data.url}
 					{/* </Tooltip> */}
 				</div>
 			</td>
@@ -85,22 +85,22 @@ function tableData(index, data, history, clone) {
 				</button>
 			</td>
 			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<a className='text-indigo-600 hover:text-indigo-900' onClick={() => clone(data)}>
+				<span className='text-indigo-600 hover:text-indigo-900' onClick={() => clone(data)}>
 					Clone
-				</a>
+				</span>
 			</td>
-			<td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
-				<a href='#' className='text-red-600 hover:text-red-900'>
-					Delete
-				</a>
-			</td>
+			{/* <td className='px-6 py-4 whitespace-nowrap  text-sm font-medium text-center '>
+				<span  className='text-red-600 hover:text-red-900'>
+					Delete 
+				</span>
+			</td> */}
 		</tr>
 	);
 }
 
 function isTimer(time, seconds) {
 	let timeDiff = Math.ceil((Date.now() - new Date(time * 1000)) / 1000);
-	let currentDiff = seconds - timeDiff;
+	let currentDiff = seconds - timeDiff + 5;
 	if (timeDiff < seconds) {
 		return <Time seconds={currentDiff} />;
 	} else return "Open";
@@ -112,5 +112,5 @@ let headings = [
 	{ name: "Times" },
 	{ name: "Result" },
 	{ name: "Edit" },
-	{ name: "Delete" },
+	// { name: "Delete" },
 ];

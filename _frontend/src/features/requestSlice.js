@@ -88,7 +88,6 @@ export const requestSlice = createSlice({
 			return state;
 		},
 		[getAllRequests.fulfilled]: (state, { payload }) => {
-			console.log("payload", payload);
 			state.allRequest = payload && payload.data;
 			state.isFetching = false;
 			state.isSuccess = true;

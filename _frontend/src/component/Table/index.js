@@ -35,9 +35,10 @@ function index({ headings, children, paginate, pagination, count }) {
 export default index;
 
 function getHeader(headings) {
-	return headings.map((heading) => {
+	return headings.map((heading,index) => {
 		return (
 			<th
+				key={index}
 				scope='col'
 				className=' py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider'>
 				{heading.name}

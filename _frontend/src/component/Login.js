@@ -1,50 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { selectUser,clearState, loginUser, checkLogin } from "../features/userSlice";
+import { selectUser, clearState, loginUser, checkLogin } from "../features/userSlice";
 import { useSelector } from "react-redux";
-import { useHistory,Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function Login() {
 	let [email, setEmail] = useState("");
-    let [password, setPassword] = useState("");
-    
-    const { isFetching, isSuccess, isError, errorMessage, isLoggedIn } = useSelector(selectUser);
+	let [password, setPassword] = useState("");
 
-    const notifySuccess = (msg) => toast.success(msg);
-    const notifyFailed = (msg) => toast.error(msg);
-	const history = useHistory();
-
-
-    useEffect(() => {
-        dispatch(checkLogin());
-    },[])
-
-	useEffect(() => {
-		
-		if (isSuccess) {
-            dispatch(clearState());
-            // notifyFailed(errorMessage ? errorMessage : "Failed to login.")
-		}
-		if (isError) {
-            dispatch(clearState());
-            notifyFailed(errorMessage ? errorMessage : "Failed to login.")
-		}
-
-        if (isFetching) {
-            notifySuccess("Login successfully.")
-            dispatch(clearState());
-			history.push("/");
-        }
-        
-		if (isLoggedIn) {
-            // notifySuccess("Login successfully.")
-            dispatch(clearState());
-			history.push("/");
-		}
-	}, [isError, isSuccess, isLoggedIn]);
+	const { isError, errorMessage, isLoggedIn } = useSelector(selectUser);
 
 	const dispatch = useDispatch();
+	const notifySuccess = (msg) => toast.success(msg);
+	const notifyFailed = (msg) => toast.error(msg);
+	const history = useHistory();
+
+	useEffect(() => {
+		dispatch(checkLogin());
+	}, [dispatch]);
+
+	useEffect(() => {
+		if (isError) {
+			dispatch(clearState());
+			notifyFailed(errorMessage ? errorMessage : "Failed to login.");
+		}
+
+		if (isLoggedIn) {
+			notifySuccess("Login successfully.");
+			dispatch(clearState());
+			history.push("/");
+		}
+	}, [dispatch, history, isError, isLoggedIn, errorMessage]);
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		dispatch(
@@ -56,7 +44,6 @@ function Login() {
 	};
 	return (
 		<div className='w-full max-w-xs '>
-
 			<header className='bg-white border-b-2 h-10 flex justify-center items-center'>
 				<h1> Login Here 🚪 </h1>
 			</header>
@@ -84,7 +71,7 @@ function Login() {
 						placeholder='******************'
 						onChange={(e) => setPassword(e.target.value)}
 					/>
-					<p className='text-red-500 text-xs italic'>Please choose a password.</p>
+					{/* <p className='text-red-500 text-xs italic'>Please choose a password.</p> */}
 				</div>
 				<div className='flex items-center justify-between'>
 					<button
@@ -92,10 +79,11 @@ function Login() {
 						type='submit'>
 						Login
 					</button>
-				
-                    <Link
+
+					<Link
 						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-						type='submit' to="/signup">
+						type='submit'
+						to='/signup'>
 						Sign up
 					</Link>
 				</div>
