@@ -76,11 +76,12 @@ func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Requ
 	paylodResponse.UserID = DB.User.ID
 
 	go func() {
-		err, _ := helpers.ProcessRequest(DB, paylodResponse)
+		err, respon := helpers.ProcessRequest(DB, paylodResponse)
 		if err != nil {
-			log.Println("err")
+			log.Println("err", err)
 		}
-		services.ResponseWriter(nil, methodName, 1, "All Request SuccessFully sent to all saved server.", err.Error())
+		fmt.Println("methodName", methodName)
+		services.ResponseWriter(nil, methodName, 1, "All Request SuccessFully sent to all saved server.", respon)
 	}()
 
 	go func() {
@@ -89,6 +90,8 @@ func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Requ
 		services.Initialize(&conf, responseReciever)
 		response = <-responseReciever
 		t := time.Now()
+		fmt.Println("response", response)
+
 		response.TotalTimeTaken = int64(math.Ceil(t.Sub(processStartTime).Seconds()))
 		response.PerSecond = response.SucessRequests / response.TotalTimeTaken
 		response.ReadThroughput = response.ReadThroughput / response.TotalTimeTaken
