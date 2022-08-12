@@ -10,6 +10,8 @@ import (
 
 func ValidatePagination(query url.Values) (bool, options.FindOptions) {
 	options := options.FindOptions{}
+	options.SetSort(bson.D{{"_id", -1}})
+
 	page, err := strconv.ParseInt(query.Get("page"), 10, 16)
 	if err != nil {
 		return false, options
@@ -25,7 +27,6 @@ func ValidatePagination(query url.Values) (bool, options.FindOptions) {
 
 		return true, options
 	}
-	options.SetSort(bson.D{{"_id", -1}})
 
 	return false, options
 

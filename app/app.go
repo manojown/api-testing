@@ -1,7 +1,9 @@
 package app
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -74,7 +76,8 @@ func (app *App) setRouter() {
 	app.apiHandler("/user", "GET", handler.GetAllUser, true)
 	app.apiHandler("/connector", "POST", handler.Connector, false)
 	app.apiHandler("/result", "POST", handler.GetServerRespone, false)
-
+	app.Router.PathPrefix("/").Handler(http.StripPrefix("/",
+		http.FileServer(http.Dir("./build"))))
 }
 
 func (app *App) apiHandler(path string, method string, handler handlerFunction, isAuth bool) {
@@ -107,14 +110,17 @@ func (app *App) withAuthHandler(handler handlerFunction) http.HandlerFunc {
 	}
 }
 
-// func serveAppHandler(app *rice.Box) http.HandlerFunc {
+var embeddedFiles embed.FS
 
-// 		indexFile, err := app.Open("index.html")
-// 		if err != nil {
-// 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-// 			return
-// 		}
+func getFileSystem() http.FileSystem {
 
-// 		http.ServeContent(w, r, "index.html", time.Time{}, indexFile)
-// 	}
-// }
+	// Get the build subdirectory as the
+	// root directory so that it can be passed
+	// to the http.FileServer
+	fsys, err := fs.Sub(embeddedFiles, "build")
+	if err != nil {
+		panic(err)
+	}
+
+	return http.FS(fsys)
+}

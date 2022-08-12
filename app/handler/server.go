@@ -80,7 +80,6 @@ func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Requ
 		if err != nil {
 			log.Println("err", err)
 		}
-		fmt.Println("methodName", methodName)
 		services.ResponseWriter(nil, methodName, 1, "All Request SuccessFully sent to all saved server.", respon)
 	}()
 
@@ -90,7 +89,6 @@ func NewSessionRequest(DB *config.DbConfig, rw http.ResponseWriter, r *http.Requ
 		services.Initialize(&conf, responseReciever)
 		response = <-responseReciever
 		t := time.Now()
-		fmt.Println("response", response)
 
 		response.TotalTimeTaken = int64(math.Ceil(t.Sub(processStartTime).Seconds()))
 		response.PerSecond = response.SucessRequests / response.TotalTimeTaken
@@ -134,6 +132,7 @@ func CreateServer(DB *config.DbConfig, rw http.ResponseWriter, r *http.Request) 
 	insertionID, err := Collection.InsertOne(nil, server)
 
 	if err != nil {
+		fmt.Println("Error inserting", err)
 		services.ResponseWriter(rw, methodName, http.StatusInternalServerError, "Error occured while server insertion,", err)
 		return
 	}

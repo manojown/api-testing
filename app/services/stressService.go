@@ -167,13 +167,9 @@ func doRequest(url string, result *Result, conf *model.Configuration) {
 	fasthttp.ReleaseRequest(req)
 	fasthttp.ReleaseResponse(resp)
 	if err != nil {
-		fmt.Println("errr", err)
-
 		result.networkFailed++
 		return
 	}
-	fmt.Printf("%+v\n", result)
-	fmt.Printf("%+v\n", statusCode)
 
 	if statusCode == fasthttp.StatusOK || statusCode == fasthttp.StatusMovedPermanently {
 		result.responseTime += responseTime

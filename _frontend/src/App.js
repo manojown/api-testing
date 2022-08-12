@@ -2,7 +2,7 @@ import './App.css';
 import Login from './component/Login'
 import Home from './component/Request/home'
 
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, HashRouter,Switch, Route } from 'react-router-dom';
 import Register from './component/Register'
 import { PrivateRoute } from './helpers/privateRouting';
 import  { Toaster } from "react-hot-toast";
@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="App flex flex-column justify-center items-center h-screen bg-gray-200 ">
       <Toaster/>
-      <Router>
+      <HashRouter>
         <Switch>
           <Route exact component={Login} path="/login" />
           <Route exact component={Register} path="/signup" />
@@ -32,7 +32,7 @@ function App() {
           <PrivateRoute exact component={Report} path="/report" />
 
         </Switch>
-      </Router>
+      </HashRouter>
     </div>
 
   );

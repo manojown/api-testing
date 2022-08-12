@@ -3,7 +3,7 @@ import  ApiCall  from "../helpers/Api"
 
 export const createServer = createAsyncThunk("[post]/server", async (requestPayload, thunkAPI) => {
 	try {
-		const response = await fetch(`${process.env.REACT_APP_API}/server`, {
+		const response = await fetch(`${process.env.REACT_APP_API}server`, {
 			method: "POST",
 			headers: {
 				Accept: "application/json",
