@@ -140,25 +140,27 @@ func MyDialer() func(address string) (conn net.Conn, err error) {
 	}
 }
 func doRequest(url string, result *Result, conf *model.Configuration) {
-
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI(url)
 	req.Header.SetMethodBytes([]byte(conf.Method))
 	setHeader(conf.Headers, req)
 	if conf.KeepAlive == true {
 		req.Header.Set("Connection", "keep-alive")
-
 	} else {
 		req.Header.Set("Connection", "close")
 	}
 
-	d, _ := json.Marshal(conf.PostData)
-	req.SetBody(d)
+	if conf.Method != "GET" {
+		d, _ := json.Marshal(conf.PostData)
+		req.SetBody(d)
+	}
+
 	resp := fasthttp.AcquireResponse()
 	processStartTime := time.Now()
 	// response.TotalTimeTaken =
 
 	err := myClient.Do(req, resp)
+
 	t := time.Now()
 	responseTime := t.Sub(processStartTime).Microseconds()
 	// log.Println("respon is:::", resp.Time)
@@ -170,7 +172,6 @@ func doRequest(url string, result *Result, conf *model.Configuration) {
 		result.networkFailed++
 		return
 	}
-
 	if statusCode == fasthttp.StatusOK || statusCode == fasthttp.StatusMovedPermanently {
 		result.responseTime += responseTime
 		result.success++

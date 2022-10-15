@@ -13,7 +13,7 @@ type Configuration struct {
 	KeepAlive bool               `json:"keepAlive" bson:"keepAlive"`
 	Method    string             `json:"method" bson:"method"`
 	Ips       []string           `json:"ips" bson:"ips"`
-	PostData  interface{}        `json:"postData" bson:"postData"`
+	PostData  interface{}        `json:"postData,omitempty" bson:"postData"`
 	Created   int64              `json:"created" bson:"created"`
 }
 
